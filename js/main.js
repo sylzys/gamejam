@@ -1,7 +1,6 @@
 var stage;
 var canvas;
 var bg;
-var bgSrc = new Image();
 var gfxLoaded = 0; 
 var scientist;
 var sc;
@@ -15,67 +14,36 @@ var SCREEN_WIDTH = 640;
 var SCREEN_HEIGHT = 480;
 var bullets = new Array();
 var score;
+var myContext;
+var player_x;
+var player_y;
+
 function init() {
 	canvas = document.getElementById("canvas");
+	myContext = (canvas.getContext("2d")); 
 	stage = new Stage(canvas);
-//KEYBOARD
 
+//TIMER
 
+	var timer = self.setInterval("tick()", 1000/30); 
 
 //BACKGROUND
-bgSrc.src = 'images/bg.png';
-bgSrc.name = 'bg';
-bgSrc.onload = loadGfx;  
+bg = new Image();
+bg.src = 'images/bg.png';
+
 
 //SCIENTIST
-scImg = new Image();  
-scImg.onload = onScLoaded;  
-scImg.src  = "images/scientist.png";  
-sc = new Bitmap(scImg);
+sc = new Image();  
+ 
+sc.src  = "images/scientist.png";  
+player_x = 50; //placement en X
+player_y = SCREEN_HEIGHT - 150; //placement en Y
 
-//CONTAINER
-icon = new Container();
-	icon.x = 10;
-	icon.y = 460;
-	stage.addChildAt(icon, 0);
-score = new Text("Score: 0", "20px Arial", "orange");
-//score.color("#ff0000");
-icon.Zindex=-1000;
-icon.addChild(score);
-stage.update();
+score = 0;
 
-Ticker.setFPS(30);
-Ticker.addListener(window);
-//tick();
+//KEYBOARD
 document.onkeydown = onKeyDown;
 document.onkeyup = onKeyUp;
-
-}
-
-function loadGfx(e)
-{
-	if(e.target.name = 'bg'){bg = new Bitmap(bgSrc);}
-	buildInterface(bg);
-}
-function buildInterface(bmp)
-{
-
-	
-	stage.addChild(bmp);
-	stage.update(); // Very Important
-	
-	/* Add button listener */
-	
-	
-}
-
-function onScLoaded() {
-	
-	sc.regX = sc.image.width * 0.5; 
-	sc.regY = sc.image.height * 0.5;
-	sc.x = 50; //placement en X
-	sc.y = SCREEN_HEIGHT - 100; //placement en Y
-	buildInterface(sc);
 }
 
 function onKeyDown(e) {       
@@ -122,26 +90,26 @@ function onKeyUp(e) {
 function checkMovement() {  
 	if(moveLeft)  
 	{  
-		sc.x -= speed;  
-		if(sc.x < 10)
-			sc.x = 10;  
+		player_x -= speed;  
+		if(player_x < 10)
+			player_x = 10;  
 	}  
 	else if(moveRight)  
 	{  
-		sc.x += speed;  
-		if(sc.x > SCREEN_WIDTH - 10)  
-			sc.x = SCREEN_WIDTH - 10;  
+		player_x += speed;  
+		if(player_x > SCREEN_WIDTH - 10)  
+			player_x = SCREEN_WIDTH - 10;  
 	}  
 
 	if(moveUp)  
 	{  
-		if(sc.y - speed > 24)  
-			sc.y -= speed * 2;  
+		if(player_y - speed > 24)  
+			player_y -= speed * 2;  
 	}  
 	else if(moveDown)  
 	{  
-		if(sc.y + speed < SCREEN_HEIGHT - 100)  
-			sc.y += speed;  
+		if(player_y + speed < SCREEN_HEIGHT - 150)  
+			player_y += speed;  
 	}  
 }  
 
@@ -151,8 +119,8 @@ function fire(){
 	f = new Bitmap(fImg);
 	f.regX = f.image.width * 0.5; 
 	f.regY = f.image.height * 0.5;
-	f.x = sc.x + 30; //placement en X du vaisseau
-	f.y = sc.y; //placement en Y
+	f.x = player_x + 30; //placement en X du vaisseau
+	f.y = player_y; //placement en Y
 	bullets.push(f);
 	stage.addChild(f);
 	buildInterface(f);
@@ -174,13 +142,25 @@ function updateBullets() {
 }
 
 function updateScientist() {
-	if(sc.y + speed / 4 < SCREEN_HEIGHT - 100)  
-		sc.y += speed / 4;  
+	if(player_y + speed / 4 < SCREEN_HEIGHT - 150)  
+		player_y += speed / 4;  
 }
 
+function clearScreen ()
+{
+	myContext.drawImage(bg, 0, 0);
+	
+}
+function draw() {
+	myContext.drawImage(sc, player_x, player_y);
+}
 function tick() {  
+	clearScreen();
 	checkMovement(); 
 	updateScientist();
 	updateBullets(); 
-	stage.update();  
+	draw();
+	context.font = "bold 12px sans-serif";
+	myContext.fillStyle = "orange";
+	myContext.fillText("Score : " + score, 10, 460);
 } 
