@@ -13,6 +13,9 @@ function Bullet() {
 	this.getDamage = function(){
 		return this.damage;
 	}
+	this.getImg = function(){
+		return this.img;
+	}
 	this.setX = function(_x){
 		this.x = _x;
 	}
