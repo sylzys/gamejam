@@ -25,7 +25,7 @@ function init() {
 
 //TIMER
 
-	var timer = self.setInterval("tick()", 1000/30); 
+	var timer = self.setInterval("tick()", 1000/20); 
 
 //BACKGROUND
 bg = new Image();
@@ -46,13 +46,13 @@ document.onkeydown = onKeyDown;
 document.onkeyup = onKeyUp;
 }
 
-function onKeyDown(e) {       
-	if(!e){ var e = window.event; }  
+function onKeyDown(e) {
+	if(!e){ var e = window.event; }
 	console.log(e.keyCode);
 	switch(e.keyCode) {  
         // left  
-        case 37: moveLeft = true; moveRight = false;      
-        break;                    
+        case 37: moveLeft = true; moveRight = false;   
+        break;
         // up  
         case 38: moveUp = true; moveDown = false;  
         break;                    
@@ -114,28 +114,34 @@ function checkMovement() {
 }  
 
 function fire(){
-	fImg = new Image();   
-	fImg.src  = "images/fiole-small.png";  
-	f = new Bitmap(fImg);
-	f.regX = f.image.width * 0.5; 
-	f.regY = f.image.height * 0.5;
-	f.x = player_x + 30; //placement en X du vaisseau
-	f.y = player_y; //placement en Y
-	bullets.push(f);
-	stage.addChild(f);
-	buildInterface(f);
+	f = new Image();   
+	f.src  = "images/fiole-small.png";  
+	// f.x = player_x + 30; //placement en X du vaisseau
+	// f.y = player_y; //placement en Y
+	var b = new Bullet();
+	b.setBullet(player_x + 50, player_y + 20, 50, f);
+	bullets.push(b);
+	
+	console.log(b.getX())
+	myContext.drawImage(f, b.getX(),  b.getY());
+	// stage.addChild(f);
+	// buildInterface(f);
 
 
 }
 
 function updateBullets() {
 	var i;
+	//console.log(bullets[0].getX);
 	var limit = bullets.length;
 	for (i=0; i < limit; i++)
 	{
-		bullets[i].x += BULLET_SPEED;
-		if (bullets[i].x > SCREEN_WIDTH - 20){
-			stage.removeChild(bullets[i]);
+console.log("SIZE " +bullets[0].getX() + " i : " + i +"\n");
+		
+		bullets[i].setX(bullets[i].getX() + BULLET_SPEED);
+		myContext.drawImage(f, bullets[i].getX() - 30, bullets[i].getY());
+		if (bullets[i].getX() > SCREEN_WIDTH - 20){
+			//stage.removeChild(bullets[i]);
 			bullets.splice(i, 1);
 		}
 	}
@@ -154,13 +160,17 @@ function clearScreen ()
 function draw() {
 	myContext.drawImage(sc, player_x, player_y);
 }
+function draw_menu() {
+	myContext.font = "bold 12px sans-serif";
+	myContext.fillStyle = "orange";
+	myContext.fillText("Score : " + score, 10, 460);
+}
 function tick() {  
+
 	clearScreen();
 	checkMovement(); 
 	updateScientist();
 	updateBullets(); 
 	draw();
-	myContext.font = "bold 12px sans-serif";
-	myContext.fillStyle = "orange";
-	myContext.fillText("Score : " + score, 10, 460);
+	draw_menu();
 } 
