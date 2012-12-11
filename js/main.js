@@ -160,7 +160,7 @@ function tick() {
 	updateScientist();
 	updateBullets(); 
 	draw();
-	context.font = "bold 12px sans-serif";
+	myContext.font = "bold 12px sans-serif";
 	myContext.fillStyle = "orange";
 	myContext.fillText("Score : " + score, 10, 460);
 } 
