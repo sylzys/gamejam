@@ -1,0 +1,14 @@
+body {
+	background-color:#001132;
+}
+
+#canvas {
+	width:640px;
+	height:480px; 
+	margin-left:auto; margin-right:auto;
+}
+#wrapper {
+	width:640px; height:480px; 
+	margin-left:auto; margin-right:auto; 
+	background-color:#000; border:5px ridge #cc8811;
+}
