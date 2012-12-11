@@ -3,13 +3,13 @@ body {
 }
 
 #canvas {
-	width:640px;
+	width:800px;
 	height:480px; 
 	margin-left:auto; margin-right:auto;
 }
 #wrapper {
 	position:relative;
-	width:640px; height:480px; 
+	width:800px; height:480px; 
 	margin-left:auto; margin-right:auto; 
 	background-color:#000; border:5px ridge #cc8811;
 }
