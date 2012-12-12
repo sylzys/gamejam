@@ -30,6 +30,7 @@ var h = new Image();
 var sound = new Image();
 var fx = new Image();
 var bullets = new Array();
+var enemies = new Array();
 var score;
 var myContext;
 var player_x;
@@ -61,6 +62,8 @@ myContext = (canvas.getContext("2d"));
 
 var timer = self.setInterval("tick()", 1000/30);
 
+//clean bullet tab
+var timer_tab = self.setInterval("clean_tabs()", 30000);
 //BACKGROUND
 bg = new Image();
 bg.src = 'images/bg.png';
@@ -132,9 +135,24 @@ function onKeyUp(e) {
         case 32:
         fire();
         break;
+        //test purpose to launch ennemy
+        case 69: //'E'
+        launch_ennemy();
     }
 }
 
+function launch_ennemy(){
+	f = new Image();
+	f.src = "images/snake1.png";
+	var e = new Enemy();
+	//function(x, y , damage, img, speed, life, side)
+	e.setEnemy(SCREEN_WIDTH, SCREEN_HEIGHT / 2, 30, f, 10, "left");
+	enemies.push(e);
+
+	console.log("eX "+ e.getX());
+	myContext.drawImage(f, e.getX(), e.getY());
+
+}
 function propulse(){
 	f = new Image();
 	f.src  = "images/fire1.png";
@@ -239,7 +257,7 @@ function updateBullets() {
 		myContext.drawImage(bullets[i].getImg(), bullets[i].getX() - 30, bullets[i].getY());
 		if (bullets[i].getX() > SCREEN_WIDTH - 20){
 			//stage.removeChild(bullets[i]);
-			bullets.shift();
+			//bullets.shift();
 		}
 	}
 }
@@ -256,6 +274,50 @@ function updateScientist() {
 
 }
 
+function updateEnemies() {
+	var i;
+	//console.log(bullets[0].getX);
+	var limit = enemies.length;
+	for (i=0; i < limit; i++)
+	{
+		enemies[i].setX(enemies[i].getX() - enemies[i].getSpeed());
+		myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
+		if (enemies[i].getX() <  20){
+			//stage.removeChild(bullets[i]);
+			enemies.shift();
+		}
+	}
+}
+function checkCollide(){
+	var i;
+	
+	var limit = enemies.length;
+
+	for (i=0; i < limit; i++)
+	{
+		
+		if (Math.abs(player_x - enemies[i].getX()) < 40 && Math.abs(player_y - enemies[i].getY()) < 40){
+			decrease_life();
+		}
+	}
+}
+
+function decrease_life()
+{
+	console.log("decrease_life");
+	LIFE -= 1;
+	if (LIFE === 0){
+		alert("YOU LOST !!");
+		endGame();
+	}
+	else {
+		player_x = 50; //placement en X
+		player_y = SCREEN_HEIGHT - 150; //placement en Y
+	}
+}
+function endGame(){
+
+}
 function clearScreen ()
 {
 	myContext.drawImage(bg, 0, 0);
@@ -267,7 +329,7 @@ function draw() {
 function draw_menu() {
 	myContext.font = "bold 16px sans-serif";
 	myContext.fillStyle = "orange";
-	myContext.fillText("Score : 9999999" + score, 10, SCREEN_HEIGHT - 10);
+	myContext.fillText("Score : " + score, 10, SCREEN_HEIGHT - 10);
 
 	//Images menu
 	myContext.drawImage(f1, 150, SCREEN_HEIGHT - 40);
@@ -285,12 +347,30 @@ function draw_menu() {
 	myContext.fillText(AMMO4_LEFT, 400, SCREEN_HEIGHT - 10);
 	myContext.fillText(LIFE, 480, SCREEN_HEIGHT - 10);
 }
+function clean_tabs(){
+	var tmp = Array();
+	var tmp2 = Array();
+	if (bullets.length > 10){
+		for (i = 0; i < 11; i++){
+			tmp.push(bullets[i]);
+		}
+		bullets = tmp;
+	}
+	if (enemies.length > 10){
+		for (i = 0; i < 11; i++){
+			tmp2.push(enemies[i]);
+		}
+		enemies = tmp2;
+	}
+	console.log("tabs cleaned");
+}
 function tick() {
-
 	clearScreen();
 	checkMovement();
 	updateScientist();
+	updateEnemies();
 	updateBullets();
+	checkCollide();
 	draw();
 	draw_menu();
 }
