@@ -13,15 +13,16 @@ var BULLET_SPEED = 15;
 var SCREEN_WIDTH = 800;
 var SCREEN_HEIGHT = 480;
 var CURRENT_WEAPON = 1;
-
+var ENEMY_LAUNCHED = 0;
 var AMMO2_LEFT = 9;
 var AMMO3_LEFT = 6;
 var AMMO4_LEFT = 4;
 var LIFE = 3;
-
+var WAVE = 1;
 var MUSIC = 1;
 var FX = 1;
-
+var FRAME_TIMEOUT = 0;
+var LAUNCH_RATE = 100;
 var f1 = new Image();
 var f2 = new Image();
 var f3 = new Image();
@@ -31,6 +32,7 @@ var sound = new Image();
 var fx = new Image();
 var bullets = new Array();
 var enemies = new Array();
+var explosions = new Array();
 var score;
 var myContext;
 var player_x;
@@ -63,7 +65,13 @@ myContext = (canvas.getContext("2d"));
 var timer = self.setInterval("tick()", 1000/30);
 
 //clean bullet tab
-var timer_tab = self.setInterval("clean_tabs()", 30000);
+var timer_tab = self.setInterval("clean_tabs()", 10000);
+
+//launch_wave
+// setInterval(launch_wave, 3000);
+// window.setInterval( function() {
+//   launch_wave;
+// }, 3000)
 //BACKGROUND
 bg = new Image();
 bg.src = 'images/bg.png';
@@ -137,21 +145,49 @@ function onKeyUp(e) {
         break;
         //test purpose to launch ennemy
         case 69: //'E'
-        launch_ennemy();
+        //launch_ennemy();
     }
 }
-
+function launch_wave() {
+	var nb;
+	var time;
+	var i = 0;
+	switch (WAVE) {
+		case 1:
+		nb = 10;
+		break;
+	}
+	
+}
 function launch_ennemy(){
-	f = new Image();
-	f.src = "images/snake1.png";
-	var e = new Enemy();
+	var x;
+	var side;
+	var randomnumber;
+	var time;
+	var speed;
+	//console.log("launch");
+	if (ENEMY_LAUNCHED <= WAVE * 10){
+		randomnumber=Math.floor(Math.random()*300);
+
+		if (randomnumber % 2 == 0)
+			side = "left";
+		else
+			side = "right";
+		f = new Image();
+		f.src = "images/snake1.png";
+		var e = new Enemy();
 	//function(x, y , damage, img, speed, life, side)
-	e.setEnemy(SCREEN_WIDTH, SCREEN_HEIGHT / 2, 30, f, 10, "left");
+	if (side == "left")
+		x = 0;
+	else x = SCREEN_WIDTH;
+	speed = Math.floor(Math.random()*10)+1;
+	e.setEnemy(x, randomnumber, 30, f, speed, 50, side);
 	enemies.push(e);
 
-	console.log("eX "+ e.getX());
+	//console.log("eX "+ e.getX());
 	myContext.drawImage(f, e.getX(), e.getY());
-
+	ENEMY_LAUNCHED++;
+}
 }
 function propulse(){
 	f = new Image();
@@ -180,7 +216,7 @@ function checkMovement() {
 
 	if(moveUp)
 	{
-		if(player_y - speed > 24)
+		if(player_y - speed > 10)
 			player_y -= speed * 2;
 	}
 	else if(moveDown)
@@ -242,22 +278,24 @@ function fire(){
 	b.setBullet(player_x + 50, player_y + 20, damage, f);
 	bullets.push(b);
 
-	console.log(b.getX());
+	//console.log(b.getX());
 	myContext.drawImage(f, b.getX(),  b.getY());
 }
 
 function updateBullets() {
 	var i;
-	//console.log(bullets[0].getX);
+	
 	var limit = bullets.length;
 	for (i=0; i < limit; i++)
 	{
-
+		//console.log(bullets[i].getActive());
+		if (bullets[i].getActive()){
 		bullets[i].setX(bullets[i].getX() + BULLET_SPEED);
 		myContext.drawImage(bullets[i].getImg(), bullets[i].getX() - 30, bullets[i].getY());
+	}
 		if (bullets[i].getX() > SCREEN_WIDTH - 20){
 			//stage.removeChild(bullets[i]);
-			//bullets.shift();
+			bullets[i].setActive(false);
 		}
 	}
 }
@@ -280,24 +318,93 @@ function updateEnemies() {
 	var limit = enemies.length;
 	for (i=0; i < limit; i++)
 	{
-		enemies[i].setX(enemies[i].getX() - enemies[i].getSpeed());
-		myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
-		if (enemies[i].getX() <  20){
+		//console.log("sidqsde : "+enemies[0].getLife());
+		if (enemies[i].getSide() == "left" && enemies[i].getLife() > 0) {
+			enemies[i].setX(enemies[i].getX() - enemies[i].getSpeed());
+			myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
+			if (enemies[i].getX() <  20){
 			//stage.removeChild(bullets[i]);
-			enemies.shift();
+			enemies[i].changeSide();
+		}
+	}
+	else if (enemies[i].getSide() == "right" && enemies[i].getLife() > 0) {
+		enemies[i].setX(enemies[i].getX() + enemies[i].getSpeed());
+		myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
+		if (enemies[i].getX() >  750){
+			//stage.removeChild(bullets[i]);
+			enemies[i].changeSide();
 		}
 	}
 }
+}
+
+function checkExplosions()
+{
+	var limit = explosions.length;
+	var time = new Date().getTime();
+	for (i = 0; i < limit; i++) {
+		//console.log("explo: "+time - explosions[i].getTime()+"/n");
+		if (time - explosions[i].getTime() < 300)
+			myContext.drawImage(explosions[i].getImg(), explosions[i].getX(), explosions[i].getY());
+		else
+		explosions.splice(i, 1);
+	}
+
+}
+
 function checkCollide(){
 	var i;
 	
 	var limit = enemies.length;
+	var b_limit = bullets.length;
 
+	//COLLISION PLAYER / ENEMY
 	for (i=0; i < limit; i++)
 	{
 		
 		if (Math.abs(player_x - enemies[i].getX()) < 40 && Math.abs(player_y - enemies[i].getY()) < 40){
+			myDeath = new Audio("sounds/explosion.ogg");
+			myDeath.play();
+			t = new Image();
+			t.src = "images/explosion.png";
+			myContext.drawImage(t, 100, 100);
 			decrease_life();
+		}
+	}
+	//COLLISION BULLET / ENEMY
+	for (i=0; i < limit; i++) //enemey
+	{
+		for (j = 0; j <b_limit; j++) {
+			
+			if (Math.abs(bullets[j].getX() - enemies[i].getX()) < 40 && Math.abs(bullets[j].getY() - enemies[i].getY()) < 40 && bullets[j].getActive()){
+				bullets[j].setActive(false);
+				y = bullets[j].getY() - enemies[i].getY();
+			x =bullets[j].getX() - enemies[i].getX()
+			console.log("i : "+i + " j : "+j+" --> "+x+ "// "+ y+"\n");
+				myDeath = new Audio("sounds/explosion.ogg");
+				myDeath.play();
+				t = new Image();
+				console.log("damB : "+bullets[j].getDamage() + " // Life"+ + enemies[i].getLife())
+				if (enemies[i].getLife() - bullets[j].getDamage() < 1){
+					console.log("killed !");
+					enemies.splice(i, 1);
+					t.src = "images/explosion.png";
+					score += 100;
+	
+				}
+				else {
+					t.src = "images/explosion-small.png";
+					enemies[i].setLife(enemies[i].getLife() - bullets[j].getDamage());
+					score += 10;
+				}
+				ex = new Explosion();
+				ex.setExplosion(bullets[j].getX(), bullets[j].getY(), new Date().getTime(), t);
+				//myContext.drawImage(t, 100, 100);
+				explosions.push(ex);
+				console.log("splicing "+i);
+				// if (enemies[i].getLife() - bullets[i].getDamage() < 1)
+				// 	enemies.splice(i, 1);
+			}
 		}
 	}
 }
@@ -349,35 +456,46 @@ function draw_menu() {
 }
 function clean_tabs(){
 	var tmp = Array();
-	var tmp2 = Array();
+	//var tmp2 = Array();
 	if (bullets.length > 10){
 		for (i = 0; i < 11; i++){
 			tmp.push(bullets[i]);
 		}
 		bullets = tmp;
 	}
-	if (enemies.length > 10){
-		for (i = 0; i < 11; i++){
-			tmp2.push(enemies[i]);
-		}
-		enemies = tmp2;
-	}
+	// if (enemies.length > 10){
+	// 	for (i = 0; i < 11; i++){
+	// 		tmp2.push(enemies[i]);
+	// 	}
+	// 	enemies = tmp2;
+	// }
 	console.log("tabs cleaned");
 }
 function tick() {
+
+
 	clearScreen();
 	checkMovement();
 	updateScientist();
 	updateEnemies();
+	checkExplosions();
 	updateBullets();
 	checkCollide();
 	draw();
 	draw_menu();
+	//console.log(FRAME_TIMEOUT);
+	if (FRAME_TIMEOUT % LAUNCH_RATE == 0){
+		launch_ennemy ();
+		LAUNCH_RATE= Math.floor(Math.random()*200);
+	}
+
+	FRAME_TIMEOUT++;
 }
 
 //JQUERY
 
 $(document).ready(function(){
+	setTimeout(launch_wave, 3000);
 	function checkCoordinates(x, y){
 		//CHECK IF CLICKED ON SOUND
 		if((x >= 720 && x <= 752) && (y <= SCREEN_HEIGHT - 10 && y >= SCREEN_HEIGHT - 42)){

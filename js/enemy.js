@@ -4,7 +4,7 @@ function Enemy() {
 	var damage;
 	var img;
 	var speed;
-	var life;
+	var life = "";
 
 	this.getX = function(){
 		return this.x;
@@ -45,7 +45,13 @@ function Enemy() {
 	this.setSide = function(_sd){
 		this.side = _sd;
 	}
-	this.setEnemy = function(x, y , damage, img, speed, life, side) {
+	this.changeSide = function() {
+		if(this.side == "left")
+			this.side = "right";
+		else 
+			this.side = "left";
+	}
+	this.setEnemy = function(x, y , damage, img, speed, life, side ="left") {
 		this.x = x;
 		this.y = y;
 		this.img = img;
