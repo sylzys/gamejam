@@ -409,7 +409,7 @@ function bonus(){
 		i = f4;
 		break;
 		case 5:
-		i = heart;
+		i = h;
 		break;
 		case 6:
 		i = chrono;
@@ -602,6 +602,7 @@ function updateBonus(){
 	{
 		if (bonii[i].getActive()){
 			bonii[i].setY(bonii[i].getY() + 4);
+			console.log("error : "+bonii[i].getImg().src);
 			myContext.drawImage(bonii[i].getImg(), bonii[i].getX() + 4, bonii[i].getY());
 		}
 	}
@@ -966,7 +967,7 @@ $(document).ready(function(){
 			}
 		}
 		//CHECK IF CLICKED ON PAUSE
-		if((x >= 685 && x <= 712) && (y <= SCREEN_HEIGHT - 10 && y >= SCREEN_HEIGHT - 42)){
+		if((x >= 840 && x <= 872) && (y <= 669 && y >= SCREEN_HEIGHT - 647)){
 			if (END_WAVE == 0){
 				play_pause.src = "images/play.png";
 				MUSIC = 0;
@@ -1014,36 +1015,14 @@ $(document).ready(function(){
 
     return {"x": x, "y": y};
 };
-function handler(e) {
-	 console.log("target :");
-	e = e || event;
-	var el = e.srcElement || e.target;
-	if (el.id && /canvas/i.test(el.id))
-	{
-		alert("hello");
-	}
-	alert(el.id || "no id");
-}
-// $("#cadre").on("click", function(event){
-//  	//console.log(event.target);
-//  	$("#canvas").mouseenter(event);
-//  	//alert($(event.target).children();
-//  // 	position = getPosition($(event.target).children());
-//  // 		//checkCoordinates(position.x, position.y);
-// 	// console.log("X: " + position.x + " Y: " + position.y)
-//   }
-//  );
-// function test() {
-// 	alert("GRRR");
-// }
-//$("#canvas").addEventListener("click", test, false);
+
 
  $("#canvas").click(function(e) {
 // 	// jQuery would normalize the event
 // 	console.log(event);
-// 	position = getPosition(event);
-// 	checkCoordinates(position.x, position.y);
+ 	position = getPosition(e);
+	checkCoordinates(position.x, position.y);
 // 	alert("TRIGGER");
-	alert("X: " + e.pageX + " Y: " + e.pageY);
+	alert("X: " + position.x + " Y: " + position.y);
  });
 });
