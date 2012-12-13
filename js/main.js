@@ -25,6 +25,7 @@ var MUSIC = 1;
 var FX = 1;
 var FRAME_TIMEOUT = 0;
 var LAUNCH_RATE = 100;
+var SC_SIDE = "right";
 var f1 = new Image();
 var f2 = new Image();
 var f3 = new Image();
@@ -32,6 +33,8 @@ var f4 = new Image();
 var h = new Image();
 var sound = new Image();
 var fx = new Image();
+//SCIENTIST
+sc = new Image();
 var bullets = new Array();
 var enemies = new Array();
 var explosions = new Array();
@@ -47,6 +50,7 @@ function init() {
 	l1.src = "images/level1.png";
 	canvas = document.getElementById("canvas");
 	myContext = (canvas.getContext("2d"));
+	sc.src = "images/scientist-right.png";
 	setTimeout (function() {
 		//console.log("using " +l.src);
 		myContext.drawImage(l1, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);
@@ -114,7 +118,7 @@ bg.src = 'images/bg.png';
 //SCIENTIST
 sc = new Image();
 
-sc.src  = "images/scientist.png";
+sc.src  = "images/scientist-right.png";
 player_x = 50; //placement en X
 player_y = SCREEN_HEIGHT - 150; //placement en Y
 
@@ -130,7 +134,7 @@ function onKeyDown(e) {
 	//console.log("key" + e.keyCode);
 	switch(e.keyCode) {
         // left
-        case 37: moveLeft = true; moveRight = false;
+        case 37: moveLeft = true; moveRight = false; SC_SIDE = "left"; sc.src = "images/scientist-left.png";
         break;
         // up
         case 38: moveUp = true; moveDown = false;
@@ -139,7 +143,7 @@ function onKeyDown(e) {
         	soundPropulse();
         break;
         // right
-        case 39: moveRight = true; moveLeft = false;
+        case 39: moveRight = true; moveLeft = false; SC_SIDE = "right"; sc.src = "images/scientist-right.png";
         break;
         // down
         case 40: moveDown = true; moveUp = false;
@@ -350,7 +354,7 @@ function fire(){
 		myLaser.play();
 	}
 	var b = new Bullet();
-	b.setBullet(player_x + 50, player_y + 20, damage, f);
+	b.setBullet(player_x + 50, player_y + 20, damage, f, SC_SIDE);//this.setBullet = function(x, y, damage, img, side, active=true) {
 	bullets.push(b);
 
 	//console.log(b.getX());
@@ -365,14 +369,22 @@ function updateBullets() {
 	{
 		//console.log(bullets[i].getActive());
 		if (bullets[i].getActive()){
-			bullets[i].setX(bullets[i].getX() + BULLET_SPEED);
+			if (bullets[i].getSide() == "right"){
+				bullets[i].setX(bullets[i].getX() + BULLET_SPEED);
+			}
+			else{
+				bullets[i].setX(bullets[i].getX() - BULLET_SPEED);
+			}
 			myContext.drawImage(bullets[i].getImg(), bullets[i].getX() - 30, bullets[i].getY());
 		}
-		if (bullets[i].getX() > SCREEN_WIDTH - 20){
+		if ((bullets[i].getX() > SCREEN_WIDTH - 20 || bullets[i].getX() < 10) && bullets[i].getActive()){
 			//stage.removeChild(bullets[i]);
 			bullets[i].setActive(false);
 		}
 	}
+
+
+	
 }
 
 function updateScientist() {
@@ -381,8 +393,10 @@ function updateScientist() {
 	{
 		player_y += speed / 4;
 		fireUp.src  = "images/fire2.png";
-
-		myContext.drawImage(fireUp, player_x - 5, player_y + 55);
+		if (SC_SIDE == "right")
+			myContext.drawImage(fireUp, player_x - 5, player_y + 55);
+		else 
+			myContext.drawImage(fireUp, player_x + 60, player_y + 55);
 	}
 
 }
@@ -440,7 +454,9 @@ function checkCollide(){
 
 		if (Math.abs(player_x - enemies[i].getX()) < 40 && Math.abs(player_y - enemies[i].getY()) < 40){
 			myDeath = new Audio("sounds/explosion.ogg");
-			myDeath.play();
+			if (FX == 1){
+				myDeath.play();
+			}
 			t = new Image();
 			t.src = "images/explosion.png";
 			myContext.drawImage(t, 100, 100);

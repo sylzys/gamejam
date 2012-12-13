@@ -4,6 +4,7 @@ function Bullet() {
 	var damage;
 	var img;
 	var active;
+	var side;
 
 	this.getX = function(){
 		return this.x;
@@ -20,6 +21,9 @@ function Bullet() {
 	this.getActive = function(){
 		return this.active;
 	}
+	this.getSide = function(){
+		return this.side;
+	}
 	this.setX = function(_x){
 		this.x = _x;
 	}
@@ -32,12 +36,16 @@ function Bullet() {
 	this.setActive = function(_a){
 		this.active = _a;
 	}
+	// this.setSide = function(_s){
+	// 	this.side = _s;
+	// }
 
-	this.setBullet = function(x, y, damage, img, active=true) {
+	this.setBullet = function(x, y, damage, img, side, active=true) {
 		this.x = x;
 		this.y = y;
 		this.img = img;
 		this.damage = damage;
 		this.active = active;
+		this.side = side;
 	}
 }
