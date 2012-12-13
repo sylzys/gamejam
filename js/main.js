@@ -11,7 +11,7 @@ var moveUp = false;
 var moveDown = false;
 var BULLET_SPEED = 15;
 var SCREEN_WIDTH = 800;
-var SCREEN_HEIGHT = 480;
+var SCREEN_HEIGHT = 450;
 var CURRENT_WEAPON = 1;
 var ENEMY_LAUNCHED = 0;
 var AMMO2_LEFT = 5;
@@ -21,9 +21,11 @@ var END_WAVE = 0;
 var BONUS = 0;
 var BOSS = 0;
 var LIFE = 10;
-var WAVE = 1;
+var WAVE = 4;
 var MUSIC = 1;
+var UP = 0;
 var FX = 1;
+var BONUS_SPEED = 0;
 var INVINCIBLE = 0;
 var FRAME_TIMEOUT = 0;
 var LAUNCH_RATE = 100;
@@ -39,7 +41,9 @@ var play_pause = new Image();
 var pause = new Image();
 var dance1 = new Image();
 var BAF_red = new Image();
+var BAF = new Image();
 var bg_bonus = new Image();
+var chrono = new Image();
 //SCIENTIST
 sc = new Image();
 var bullets = new Array();
@@ -53,7 +57,7 @@ var player_x;
 var player_y;
 var fxUpUrl = "sounds/flame.ogg";
 
-// ************************************ADD****************************************************
+// ****************************************************************************************
 var backgrounddx = 2;  // Amount to move background image
 var backgroundx = 0;  // x coord to slice background image
 var cntx ;
@@ -62,9 +66,7 @@ var myCntx;
 var paraWidth;
 var paraHeight;
 
-/************************************ADD****************************************************
-						Récupérer les images des caisses !
-						****************************************************************************************/
+
 
 //****** CAISSE 1 *****//
 var caisse3d = new Image();
@@ -100,13 +102,13 @@ function init() {
 		myContext.drawImage(l1, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);
 	}, 100);
 	setTimeout (function() {
-		// END_WAVE = 0;
-		// BOSS = 0;
-		// WAVE = 0;
-		// LIFE = 10;
-		// AMMO2_LEFT = 5;
-		// AMMO3_LEFT = 5;
-		// AMMO4_LEFT = 5;
+		END_WAVE = 0;
+		BOSS = 0;
+		WAVE = 1;
+		LIFE = 10;
+		AMMO2_LEFT = 5;
+		AMMO3_LEFT = 5;
+		AMMO4_LEFT = 5;
 		start();
 
 	}, 3000);
@@ -137,8 +139,10 @@ l4.src = "images/level4.png";
 l5.src = "images/level5.png";
 lgo.src = "images/game-over.png";
 dance1.src = "images/dance1.png";
+BAF.src = "images/BAF.png";
 BAF_red.src = "images/BAF-red.png";
 bg_bonus.src = "images/bg-bonus.png";
+chrono.src = "images/explosion-small.png";
 images.push(l1);
 images.push(l2);
 images.push(l3);
@@ -161,13 +165,9 @@ var timer = self.setInterval("tick()", 1000/30);
 
 //clean bullet tab
 var timer_tab = self.setInterval("clean_tabs()", 10000);
-//launch 1st bonus
 
-//launch_wave
-// setInterval(launch_wave, 3000);
-// window.setInterval( function() {
-//   launch_wave;
-// }, 3000)
+//bonus
+var timer_bonus = self.setInterval("bonus()", 5000);
 //BACKGROUND
 bg = new Image();
 bg.src = 'images/bg.png';
@@ -201,22 +201,22 @@ function onKeyDown(e) {
         // ************************************ADD****************************************************
         if ((backgroundx + backgrounddx) > backgrounddx)
         {
-        	backgroundx -= backgrounddx;				  
+        	backgroundx -= backgrounddx;
         	caisse3dx += backgrounddx;
         	caisse3gx += backgrounddx;
         	caisse2dx  += backgrounddx;
         }
         else
-        {				    
+        {
         	backgroundx = 0;
         	backgrounddx = 2;
         }
 			// ****************************************************************************************
-			
+
 
 			break;
         // up
-        case 38: moveUp = true; moveDown = false;
+        case 38: moveUp = true; moveDown = false; UP = 1;
         propulse();
         if (FX == 1)
         	soundPropulse();
@@ -227,14 +227,14 @@ function onKeyDown(e) {
         	sc.src = "images/scientist-right-inv.png";
         else
         	sc.src = "images/scientist-right.png";
-        
+
         // ************************************ADD****************************************************
         if ((backgroundx + backgrounddx) < (paraWidth - backgrounddx))
-        {				    
-        	backgroundx += backgrounddx;				  
+        {
+        	backgroundx += backgrounddx;
         	caisse3dx -= backgrounddx;
         	caisse3gx -= backgrounddx;
-        	caisse2dx -= backgrounddx;                    
+        	caisse2dx -= backgrounddx;
         }
         if ( (backgroundx + backgrounddx) >= 590 ){
         	caisse2dx = 188;
@@ -269,7 +269,7 @@ function onKeyUp(e) {
         case 37: moveLeft = false;
         break;
         // up
-        case 38: moveUp = false;
+        case 38: moveUp = false; UP = 0;
         break;
         // right
         case 39: moveRight = false;
@@ -350,12 +350,12 @@ function launch_ennemy(){
 		MAX_DAMAGE = 7;
 		break;
 	}
-	//console.log("launch -> "+ENEMY_LAUNCHED + " // " + enemies.length);
+	console.log("launch -> "+ENEMY_LAUNCHED + " // " + enemies.length);
 	if (ENEMY_LAUNCHED < NB){
 		speed = Math.floor(Math.random()*10)+1;
 	life = Math.round((Math.random()*(MAX_DAMAGE * 10-MIN_DAMAGE * 10)+MIN_DAMAGE * 10)/10)*10;//Math.floor(Math.random()*MAX_DAMAGE * 10) + MIN_DAMAGE * 10;
 		//console.log("random is "+life);
-		randomnumber=Math.floor(Math.random()*300);
+		randomnumber=Math.floor(Math.random()*300) + 20;
 
 		if (SIDE == "both"){
 			if (randomnumber % 2 == 0)
@@ -393,12 +393,40 @@ function soundPropulse(){
 	fxUp.play();
 
 }
+function bonus(){
+	//1 - > 4 : fioles / 5: life / 6: chrono / 7: BAF
+	var type = Math.floor(Math.random()*7)+2;
+	var b = new Bonus();
+	var x = Math.floor(Math.random()*SCREEN_WIDTH - 50)+20;
+	switch (type){
+		case 2:
+		i = f2;
+		break;
+		case 3:
+		i = f3;
+		break;
+		case 4:
+		i = f4;
+		break;
+		case 5:
+		i = heart;
+		break;
+		case 6:
+		i = chrono;
+		break;
+		case 7:
+		i = BAF;
+		break;
+	}
+	b.setBonus(x, 15, i, type); //function(x, y, damage, img, type, active=true)
+	bonii.push(b);
 
+}
 function launch_bonus() {
 	var i = new Image();
 	i.src = "images/BAF.png";
 	var b = new Bonus();
-	b.setBonus(250, 0, i, 1); //function(x, y, damage, img, type, active=true)
+	b.setBonus(250, 15, i, 7); //function(x, y, damage, img, type, active=true)
 	bonii.push(b);
 }
 function checkMovement() {
@@ -417,13 +445,20 @@ function checkMovement() {
 
 	if(moveUp)
 	{
-		if(player_y - speed > 10)
+		if(player_y - speed > 30)
 			player_y -= speed * 2;
 	}
 	else if(moveDown)
 	{
-		if(player_y + speed < SCREEN_HEIGHT - 150)
-			player_y += speed;
+		if (INVINCIBLE == 0){
+			if(player_y + speed < SCREEN_HEIGHT - 150)
+				player_y += speed;
+		}
+		else {
+			if(player_y + speed < 250)
+				player_y += speed;
+		}
+
 	}
 }
 
@@ -511,11 +546,22 @@ function updateScientist() {
 	if(player_y + speed / 4 < SCREEN_HEIGHT - 150)
 	{
 		player_y += speed / 4;
-		fireUp.src  = "images/fire2.png";
-		if (SC_SIDE == "right")
-			myContext.drawImage(fireUp, player_x - 5, player_y + 55);
+		if (UP == 0)
+			fireUp.src  = "images/fire2.png";
 		else
-			myContext.drawImage(fireUp, player_x + 60, player_y + 55);
+			fireUp.src  = "images/fire1.png";
+		if (INVINCIBLE == 0){
+			if (SC_SIDE == "right")
+				myContext.drawImage(fireUp, player_x - 5, player_y + 55);
+			else
+				myContext.drawImage(fireUp, player_x + 60, player_y + 55);
+			}
+	else{
+		if (SC_SIDE == "right")
+				myContext.drawImage(fireUp, player_x - 5, player_y + 55);
+			else
+				myContext.drawImage(fireUp, player_x + 100, player_y + 85);
+		}
 	}
 
 }
@@ -529,7 +575,7 @@ function updateEnemies() {
 	{
 		//console.log("sidqsde : "+enemies[0].getY() + enemies[0].getSide());
 		if (enemies[i].getSide() == "left" && enemies[i].getLife() > 0) {
-			enemies[i].setX(enemies[i].getX() - enemies[i].getSpeed());
+			enemies[i].setX(enemies[i].getX() - enemies[i].getSpeed() + BONUS_SPEED);
 			//console.log("error ?"+enemies[i].getImg().src);
 			myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
 			if (enemies[i].getX() <  20){
@@ -538,7 +584,7 @@ function updateEnemies() {
 		}
 	}
 	else if (enemies[i].getSide() == "right" && enemies[i].getLife() > 0) {
-		enemies[i].setX(enemies[i].getX() + enemies[i].getSpeed());
+		enemies[i].setX(enemies[i].getX() + enemies[i].getSpeed() - BONUS_SPEED);
 			//console.log("error ?"+enemies[i].getImg().src);
 			myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
 			if (enemies[i].getX() >  750){
@@ -561,7 +607,7 @@ function updateBonus(){
 	}
 	if (BONUS == 1){
 		myContext.drawImage(dance1, 450, SCREEN_HEIGHT - 300);
-		myContext.drawImage(BAF_red, SCREEN_WIDTH / 2, 0);
+		myContext.drawImage(BAF_red, SCREEN_WIDTH / 2, 10);
 
 	}
 }
@@ -666,8 +712,35 @@ function checkCollide(){
 	for (i=0; i < limit; i++)
 	{
 
-		if (Math.abs(player_x - bonii[i].getX()) < 10 && Math.abs(player_y - bonii[i].getY()) < 40){
-			go_bonus();
+		if (Math.abs(player_x - bonii[i].getX()) < 20 && Math.abs(player_y - bonii[i].getY()) < 20){
+			switch(bonii[i].getType()){
+				case 2:
+				AMMO2_LEFT += 5;
+				break;
+
+				case 3:
+				AMMO3_LEFT += 5;
+				break;
+		
+				case 4:
+				AMMO4_LEFT += 5;
+				break;
+		
+				case 5:
+				LIFE += 1;
+				break;
+
+				case 6:
+				BONUS_SPEED = 3;
+				setTimeout(function() {
+					BONUS_SPEED = 0;
+				}, 5000);
+				break;
+				
+				case 7:
+				go_bonus();
+				break;
+			}
 			bonii.splice(i, 1);
 		}
 	}
@@ -708,18 +781,24 @@ function decrease_life()
 }
 function endGame(n){
 	if (n == 0){ //YOU'VE LOST
+			END_WAVE = 1;
+		setTimeout (function() {
+
+			myContext.drawImage(images[5], 0, 0);
+		}, 100);
+
+		ENEMY_LAUNCHED = 0;
+		setTimeout (function() {
+			clearScreen();
+			init();
+		}, 3000);
+	}
+	else
+	{
+		//alert ("FUCK THE SNAKES");
 		END_WAVE = 1;
-	setTimeout (function() {
-
-		myContext.drawImage(images[5], 0, 0);
-	}, 100);
-
-	ENEMY_LAUNCHED = 0;
-	setTimeout (function() {
-		clearScreen();
-		init();
-	}, 3000);
-}
+		window.location.replace("win.html");
+	}
 }
 function clearScreen ()
 {
@@ -783,10 +862,6 @@ function check_win(){
 				END_WAVE = 0;
 				BOSS = 0;
 				WAVE += 1;
-				LIFE = 10;
-				AMMO2_LEFT = 5;
-				AMMO3_LEFT = 5;
-				AMMO4_LEFT = 5;
 			}, 3000);
 		}
 		else {
@@ -798,10 +873,10 @@ function check_win(){
 	function tick() {
 		if (END_WAVE == 0){
 			// ************************************ADD****************************************************
-		drawing(myContext);		
+		drawing(myContext);
 		//clearScreen();
 		// ****************************************************************************************
-		
+
 
 			//clearScreen();
 			checkMovement();
@@ -825,47 +900,47 @@ check_win();
 }
 
 
-// ************************************ADD****************************************************
+
 	function drawing(_cntx)
 	{
-		drawRectangle(_cntx, 0, 0, paraWidth, paraHeight);
+		drawRectangle(_cntx, 7, 25, paraWidth-10, paraHeight);
 		if (BONUS == 1)
-			myContext.drawImage(bg_bonus, 0, 0);
+			myContext.drawImage(bg_bonus, 0, 27);
 		else {
-		_cntx.drawImage(bg, backgroundx, 0, 800, 480, 0, 0, paraWidth, 480);
+		_cntx.drawImage(bg, backgroundx, 0, 800, 453, 0, 27, paraWidth, 453);
 		//_cntx.drawImage(sc, scientistx, 480-170);
-		
+
 		_cntx.drawImage(caisse3d, caisse3dx, caisse3dy);
 		_cntx.drawImage(caisse3g, caisse3gx, caisse3gy);
 		_cntx.drawImage(caisse2d, caisse2dx, caisse2dy);
 		}
 		_cntx.drawImage(sc, player_x, player_y);
 	}
-	
+
 	function drawRectangle(_cntx, x, y, w, h)
 	{
 		_cntx.beginPath();
 		_cntx.rect(x,y,w,h);
 		_cntx.closePath();
-		_cntx.fill();
-		_cntx.stroke();
+		// _cntx.fill();
+		// _cntx.stroke();
 	}
-// ****************************************************************************************
-
+function get_infos(){
+	return(ENEMY_LAUNCHED);
+}
 
 //JQUERY
 
 $(document).ready(function(){
 
-	// ************************************ADD****************************************************
 	paraWidth = $("#canvas").width();
-	paraHeight = $("#canvas").height();
-	// ****************************************************************************************
-	
+	paraHeight = 453;//$("#canvas").height();
 
-	//setTimeout(launch_wave, 3000);
+	// $("#canvas").addEventListener("mouseover", alert("qdfc"), false);
+	// //setTimeout(launch_wave, 3000);
 	setTimeout (launch_bonus, 10000);
 	function checkCoordinates(x, y){
+		console.log("clicked on "+x + "/" + y);
 		//CHECK IF CLICKED ON SOUND
 		if((x >= 720 && x <= 752) && (y <= SCREEN_HEIGHT - 10 && y >= SCREEN_HEIGHT - 42)){
 			if (MUSIC == 1){
@@ -915,15 +990,22 @@ $(document).ready(function(){
 	function getPosition(e) {
 
 		var targ;
-		if (!e)
+		console.log("FIRST : "+e.pageX);
+		if (!e){
 			e = window.event;
-		if (e.target)
+			//console.log("windows "+ window.event);
+		}
+		if (e.target){
 			targ = e.target;
-		else if (e.srcElement)
+			//console.log("e.targer " + e.target);
+		}
+		else if (e.srcElement){
 			targ = e.srcElement;
+		//console.log("src el "+ e.srcElement);
+	}
     if (targ.nodeType == 3) // defeat Safari bug
     	targ = targ.parentNode;
-
+    console.log("target :" + targ );
     // jQuery normalizes the pageX and pageY
     // pageX,Y are the mouse positions relative to the document
     // offset() returns the position of the element relative to the document
@@ -932,12 +1014,36 @@ $(document).ready(function(){
 
     return {"x": x, "y": y};
 };
+function handler(e) {
+	 console.log("target :");
+	e = e || event;
+	var el = e.srcElement || e.target;
+	if (el.id && /canvas/i.test(el.id))
+	{
+		alert("hello");
+	}
+	alert(el.id || "no id");
+}
+// $("#cadre").on("click", function(event){
+//  	//console.log(event.target);
+//  	$("#canvas").mouseenter(event);
+//  	//alert($(event.target).children();
+//  // 	position = getPosition($(event.target).children());
+//  // 		//checkCoordinates(position.x, position.y);
+// 	// console.log("X: " + position.x + " Y: " + position.y)
+//   }
+//  );
+// function test() {
+// 	alert("GRRR");
+// }
+//$("#canvas").addEventListener("click", test, false);
 
-
-$("#canvas").click(function(event) {
-	// jQuery would normalize the event
-	position = getPosition(event);
-	checkCoordinates(position.x, position.y);
-	//alert("X: " + position.x + " Y: " + position.y);
-});
+ $("#canvas").click(function(e) {
+// 	// jQuery would normalize the event
+// 	console.log(event);
+// 	position = getPosition(event);
+// 	checkCoordinates(position.x, position.y);
+// 	alert("TRIGGER");
+	alert("X: " + e.pageX + " Y: " + e.pageY);
+ });
 });
