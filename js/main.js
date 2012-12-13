@@ -18,6 +18,7 @@ var AMMO2_LEFT = 5;
 var AMMO3_LEFT = 5;
 var AMMO4_LEFT = 5;
 var END_WAVE = 0;
+var BONUS = 0;
 var BOSS = 0;
 var LIFE = 10;
 var WAVE = 1;
@@ -36,17 +37,57 @@ var sound = new Image();
 var fx = new Image();
 var play_pause = new Image();
 var pause = new Image();
+var dance1 = new Image();
+var BAF_red = new Image();
+var bg_bonus = new Image();
 //SCIENTIST
 sc = new Image();
 var bullets = new Array();
 var enemies = new Array();
 var explosions = new Array();
 var images = new Array();
+var bonii = new Array();
 var score;
 var myContext;
 var player_x;
 var player_y;
 var fxUpUrl = "sounds/flame.ogg";
+
+// ************************************ADD****************************************************
+var backgrounddx = 2;  // Amount to move background image
+var backgroundx = 0;  // x coord to slice background image
+var cntx ;
+var myCntx;
+
+var paraWidth;
+var paraHeight;
+
+/************************************ADD****************************************************
+						Récupérer les images des caisses !
+						****************************************************************************************/
+
+//****** CAISSE 1 *****//
+var caisse3d = new Image();
+caisse3d.src ="images/3caissesD.png";
+
+var caisse3dx = 380; // x coord of caisse image
+var caisse3dy = 310; // y coord of caisse image
+
+//****** CAISSE 2 *****//
+var caisse3g = new Image();
+caisse3g.src ="images/3caissesG.png";
+
+var caisse3gx = 490; // x coord of caisse image
+var caisse3gy = 300; // y coord of caisse image
+
+//****** CAISSE 3 *****//
+var caisse2d = new Image();
+caisse2d.src ="images/2caisses.png";
+
+var caisse2dx = 780; // x coord of caisse image
+var caisse2dy = 330; // y coord of caisse image
+// ****************************************************************************************
+
 
 function init() {
 	l1 = new Image();
@@ -59,7 +100,15 @@ function init() {
 		myContext.drawImage(l1, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);
 	}, 100);
 	setTimeout (function() {
+		// END_WAVE = 0;
+		// BOSS = 0;
+		// WAVE = 0;
+		// LIFE = 10;
+		// AMMO2_LEFT = 5;
+		// AMMO3_LEFT = 5;
+		// AMMO4_LEFT = 5;
 		start();
+
 	}, 3000);
 
 }
@@ -87,6 +136,9 @@ l3.src = "images/level3.png";
 l4.src = "images/level4.png";
 l5.src = "images/level5.png";
 lgo.src = "images/game-over.png";
+dance1.src = "images/dance1.png";
+BAF_red.src = "images/BAF-red.png";
+bg_bonus.src = "images/bg-bonus.png";
 images.push(l1);
 images.push(l2);
 images.push(l3);
@@ -109,6 +161,7 @@ var timer = self.setInterval("tick()", 1000/30);
 
 //clean bullet tab
 var timer_tab = self.setInterval("clean_tabs()", 10000);
+//launch 1st bonus
 
 //launch_wave
 // setInterval(launch_wave, 3000);
@@ -144,7 +197,24 @@ function onKeyDown(e) {
         	sc.src = "images/scientist-left-inv.png";
         else
         	sc.src = "images/scientist-left.png";
-        break;
+
+        // ************************************ADD****************************************************
+        if ((backgroundx + backgrounddx) > backgrounddx)
+        {
+        	backgroundx -= backgrounddx;				  
+        	caisse3dx += backgrounddx;
+        	caisse3gx += backgrounddx;
+        	caisse2dx  += backgrounddx;
+        }
+        else
+        {				    
+        	backgroundx = 0;
+        	backgrounddx = 2;
+        }
+			// ****************************************************************************************
+			
+
+			break;
         // up
         case 38: moveUp = true; moveDown = false;
         propulse();
@@ -157,7 +227,22 @@ function onKeyDown(e) {
         	sc.src = "images/scientist-right-inv.png";
         else
         	sc.src = "images/scientist-right.png";
-        break;
+        
+        // ************************************ADD****************************************************
+        if ((backgroundx + backgrounddx) < (paraWidth - backgrounddx))
+        {				    
+        	backgroundx += backgrounddx;				  
+        	caisse3dx -= backgrounddx;
+        	caisse3gx -= backgrounddx;
+        	caisse2dx -= backgrounddx;                    
+        }
+        if ( (backgroundx + backgrounddx) >= 590 ){
+        	caisse2dx = 188;
+        	backgroundx = 590;
+				//console.log("caisse2dx : " + caisse2dx);
+			}
+			// ****************************************************************************************
+			break;
         // down
         case 40: moveDown = true; moveUp = false;
         break;
@@ -309,6 +394,13 @@ function soundPropulse(){
 
 }
 
+function launch_bonus() {
+	var i = new Image();
+	i.src = "images/BAF.png";
+	var b = new Bonus();
+	b.setBonus(250, 0, i, 1); //function(x, y, damage, img, type, active=true)
+	bonii.push(b);
+}
 function checkMovement() {
 	if(moveLeft)
 	{
@@ -447,16 +539,32 @@ function updateEnemies() {
 	}
 	else if (enemies[i].getSide() == "right" && enemies[i].getLife() > 0) {
 		enemies[i].setX(enemies[i].getX() + enemies[i].getSpeed());
-		//console.log("error ?"+enemies[i].getImg().src);
-		myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
-		if (enemies[i].getX() >  750){
-			//stage.removeChild(bullets[i]);
-			enemies[i].changeSide();
+			//console.log("error ?"+enemies[i].getImg().src);
+			myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
+			if (enemies[i].getX() >  750){
+				//stage.removeChild(bullets[i]);
+				enemies[i].changeSide();
+			}
 		}
 	}
 }
-}
 
+function updateBonus(){
+	var i;
+	var limit = bonii.length;
+	for (i=0; i < limit; i++)
+	{
+		if (bonii[i].getActive()){
+			bonii[i].setY(bonii[i].getY() + 4);
+			myContext.drawImage(bonii[i].getImg(), bonii[i].getX() + 4, bonii[i].getY());
+		}
+	}
+	if (BONUS == 1){
+		myContext.drawImage(dance1, 450, SCREEN_HEIGHT - 300);
+		myContext.drawImage(BAF_red, SCREEN_WIDTH / 2, 0);
+
+	}
+}
 function checkExplosions()
 {
 	var limit = explosions.length;
@@ -553,8 +661,32 @@ function checkCollide(){
 			}
 		}
 	}
+	//COLLISION ENEMY / BONUS
+	limit = bonii.length;
+	for (i=0; i < limit; i++)
+	{
+
+		if (Math.abs(player_x - bonii[i].getX()) < 10 && Math.abs(player_y - bonii[i].getY()) < 40){
+			go_bonus();
+			bonii.splice(i, 1);
+		}
+	}
 }
 
+function go_bonus()
+{
+	BONUS = 1;
+	INVINCIBLE = 1;
+	myAudio.pause();
+	myBonus = new Audio ("sounds/bonus.ogg");
+	myBonus.play();
+	setTimeout(function(){
+		if (MUSIC == 1)
+			myAudio.play();
+		BONUS = 0;
+		INVINCIBLE = 0;
+	},11000)
+}
 function decrease_life()
 {
 	//console.log("decrease_life");
@@ -591,7 +723,10 @@ function endGame(n){
 }
 function clearScreen ()
 {
-	myContext.drawImage(bg, 0, 0);
+	if (BONUS == 1)
+		myContext.drawImage(bg_bonus, 0, 0);
+	else
+		myContext.drawImage(bg, 0, 0);
 }
 function draw() {
 	myContext.drawImage(sc, player_x, player_y);
@@ -662,12 +797,19 @@ function check_win(){
 
 	function tick() {
 		if (END_WAVE == 0){
-			clearScreen();
+			// ************************************ADD****************************************************
+		drawing(myContext);		
+		//clearScreen();
+		// ****************************************************************************************
+		
+
+			//clearScreen();
 			checkMovement();
 			updateScientist();
 			updateEnemies();
 			checkExplosions();
 			updateBullets();
+			updateBonus();
 			checkCollide();
 			draw();
 			draw_menu();
@@ -682,10 +824,47 @@ function check_win(){
 check_win();
 }
 
+
+// ************************************ADD****************************************************
+	function drawing(_cntx)
+	{
+		drawRectangle(_cntx, 0, 0, paraWidth, paraHeight);
+		if (BONUS == 1)
+			myContext.drawImage(bg_bonus, 0, 0);
+		else {
+		_cntx.drawImage(bg, backgroundx, 0, 800, 480, 0, 0, paraWidth, 480);
+		//_cntx.drawImage(sc, scientistx, 480-170);
+		
+		_cntx.drawImage(caisse3d, caisse3dx, caisse3dy);
+		_cntx.drawImage(caisse3g, caisse3gx, caisse3gy);
+		_cntx.drawImage(caisse2d, caisse2dx, caisse2dy);
+		}
+		_cntx.drawImage(sc, player_x, player_y);
+	}
+	
+	function drawRectangle(_cntx, x, y, w, h)
+	{
+		_cntx.beginPath();
+		_cntx.rect(x,y,w,h);
+		_cntx.closePath();
+		_cntx.fill();
+		_cntx.stroke();
+	}
+// ****************************************************************************************
+
+
 //JQUERY
 
 $(document).ready(function(){
+
+	// ************************************ADD****************************************************
+	paraWidth = $("#canvas").width();
+	paraHeight = $("#canvas").height();
+	// ****************************************************************************************
+	
+
 	//setTimeout(launch_wave, 3000);
+	setTimeout (launch_bonus, 10000);
 	function checkCoordinates(x, y){
 		//CHECK IF CLICKED ON SOUND
 		if((x >= 720 && x <= 752) && (y <= SCREEN_HEIGHT - 10 && y >= SCREEN_HEIGHT - 42)){
