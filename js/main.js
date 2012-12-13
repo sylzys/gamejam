@@ -14,15 +14,16 @@ var SCREEN_WIDTH = 800;
 var SCREEN_HEIGHT = 480;
 var CURRENT_WEAPON = 1;
 var ENEMY_LAUNCHED = 0;
-var AMMO2_LEFT = 9;
-var AMMO3_LEFT = 6;
-var AMMO4_LEFT = 4;
+var AMMO2_LEFT = 5;
+var AMMO3_LEFT = 5;
+var AMMO4_LEFT = 5;
 var END_WAVE = 0;
 var BOSS = 0;
 var LIFE = 10;
 var WAVE = 1;
 var MUSIC = 1;
 var FX = 1;
+var INVINCIBLE = 0;
 var FRAME_TIMEOUT = 0;
 var LAUNCH_RATE = 100;
 var SC_SIDE = "right";
@@ -33,6 +34,8 @@ var f4 = new Image();
 var h = new Image();
 var sound = new Image();
 var fx = new Image();
+var play_pause = new Image();
+var pause = new Image();
 //SCIENTIST
 sc = new Image();
 var bullets = new Array();
@@ -70,6 +73,8 @@ f4.src = ("images/fiole4.png");
 h.src = ("images/heart.png");
 sound.src = ("images/music.png");
 fx.src = ("images/fx.png");
+play_pause.src = ("images/pause.png");
+pause.src = "images/pause-txt.png";
 l1 = new Image();
 l2 = new Image();
 l3 = new Image();
@@ -134,7 +139,11 @@ function onKeyDown(e) {
 	//console.log("key" + e.keyCode);
 	switch(e.keyCode) {
         // left
-        case 37: moveLeft = true; moveRight = false; SC_SIDE = "left"; sc.src = "images/scientist-left.png";
+        case 37: moveLeft = true; moveRight = false; SC_SIDE = "left";
+        if (INVINCIBLE == 1)
+        	sc.src = "images/scientist-left-inv.png";
+        else
+        	sc.src = "images/scientist-left.png";
         break;
         // up
         case 38: moveUp = true; moveDown = false;
@@ -143,7 +152,11 @@ function onKeyDown(e) {
         	soundPropulse();
         break;
         // right
-        case 39: moveRight = true; moveLeft = false; SC_SIDE = "right"; sc.src = "images/scientist-right.png";
+        case 39: moveRight = true; moveLeft = false; SC_SIDE = "right";
+        if (INVINCIBLE == 1)
+        	sc.src = "images/scientist-right-inv.png";
+        else
+        	sc.src = "images/scientist-right.png";
         break;
         // down
         case 40: moveDown = true; moveUp = false;
@@ -183,8 +196,25 @@ function onKeyUp(e) {
         fire();
         break;
         //test purpose to launch ennemy
-        case 69: //'E'
-        //launch_ennemy();
+        case 80: //'P for pause'
+        if (END_WAVE == 0){
+        	play_pause.src = "images/play.png";
+        	MUSIC = 0;
+
+
+        	setTimeout(function() {
+        		END_WAVE = 1;},100);
+        	setTimeout(function() {
+        		myContext.drawImage(pause, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);},200);
+
+        }
+
+        else {
+        	END_WAVE = 0;
+        	MUSIC = 1;
+        	play_pause.src = "images/pause.png";
+        }
+        break;
     }
 }
 
@@ -251,14 +281,14 @@ function launch_ennemy(){
 		else
 			side = SIDE;
 		f = new Image();
-		f.src = "images/snake"+(life / 10)+"-"+SIDE+".png";
+		f.src = "images/snake"+(life / 10)+"-"+side+".png";
 		//console.log ("spawning "+f.src);
 		e = new Enemy();
 	//function(x, y , damage, img, speed, life, side)
 	if (side == "left")
 		x = 0;
 	else x = SCREEN_WIDTH;
-	
+
 	e.setEnemy(x, randomnumber, 30, f, speed, life, side);
 	enemies.push(e);
 
@@ -355,7 +385,7 @@ function fire(){
 	}
 	var b = new Bullet();
 	b.setBullet(player_x + 50, player_y + 20, damage, f, SC_SIDE);//this.setBullet = function(x, y, damage, img, side, active=true) {
-	bullets.push(b);
+		bullets.push(b);
 
 	//console.log(b.getX());
 	myContext.drawImage(f, b.getX(),  b.getY());
@@ -382,9 +412,6 @@ function updateBullets() {
 			bullets[i].setActive(false);
 		}
 	}
-
-
-	
 }
 
 function updateScientist() {
@@ -395,7 +422,7 @@ function updateScientist() {
 		fireUp.src  = "images/fire2.png";
 		if (SC_SIDE == "right")
 			myContext.drawImage(fireUp, player_x - 5, player_y + 55);
-		else 
+		else
 			myContext.drawImage(fireUp, player_x + 60, player_y + 55);
 	}
 
@@ -411,6 +438,7 @@ function updateEnemies() {
 		//console.log("sidqsde : "+enemies[0].getY() + enemies[0].getSide());
 		if (enemies[i].getSide() == "left" && enemies[i].getLife() > 0) {
 			enemies[i].setX(enemies[i].getX() - enemies[i].getSpeed());
+			//console.log("error ?"+enemies[i].getImg().src);
 			myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
 			if (enemies[i].getX() <  20){
 			//stage.removeChild(bullets[i]);
@@ -419,6 +447,7 @@ function updateEnemies() {
 	}
 	else if (enemies[i].getSide() == "right" && enemies[i].getLife() > 0) {
 		enemies[i].setX(enemies[i].getX() + enemies[i].getSpeed());
+		//console.log("error ?"+enemies[i].getImg().src);
 		myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
 		if (enemies[i].getX() >  750){
 			//stage.removeChild(bullets[i]);
@@ -449,18 +478,20 @@ function checkCollide(){
 	var b_limit = bullets.length;
 
 	//COLLISION PLAYER / ENEMY
-	for (i=0; i < limit; i++)
-	{
+	if (INVINCIBLE == 0){ //pas de collision si invincible
+		for (i=0; i < limit; i++)
+		{
 
-		if (Math.abs(player_x - enemies[i].getX()) < 40 && Math.abs(player_y - enemies[i].getY()) < 40){
-			myDeath = new Audio("sounds/explosion.ogg");
-			if (FX == 1){
-				myDeath.play();
+			if (Math.abs(player_x - enemies[i].getX()) < 40 && Math.abs(player_y - enemies[i].getY()) < 40){
+				myDeath = new Audio("sounds/explosion.ogg");
+				if (FX == 1){
+					myDeath.play();
+				}
+				t = new Image();
+				t.src = "images/explosion.png";
+				myContext.drawImage(t, 100, 100);
+				decrease_life();
 			}
-			t = new Image();
-			t.src = "images/explosion.png";
-			myContext.drawImage(t, 100, 100);
-			decrease_life();
 		}
 	}
 	//COLLISION BULLET / ENEMY
@@ -487,17 +518,19 @@ function checkCollide(){
 					console.log("LAUNCHED "+ENEMY_LAUNCHED + " on "+(WAVE * 2 + 10));
 					if (ENEMY_LAUNCHED == (WAVE * 2 + 10) && enemies.length == 0) {
 						BOSS = 1;
-						console.log("time for THE boss");
+						console.log("time for THE boss "+enemies.length);
 						b = new Audio("sounds/suspense.ogg");
 						b.play();
 						t = new Image();
+						t.src = "images/boss"+WAVE+"-left.png";
+						console.log("USING A BOSS "+t.src);
 						s = Math.floor(Math.random()*2)+1;
-						//net(s == 1) ? 
+						SIDE = (s == 1) ? "left" : "right";
 						t.src = "images/boss"+WAVE+"-"+SIDE+".png";
-
+						console.log("boss is :" +t.src);
 						randomnumber=Math.floor(Math.random()*300);
 						e = new Enemy();
-						e.setEnemy(500, randomnumber, 30, t, 5, 150, "left");
+						e.setEnemy(500, randomnumber, 30, t, 5, 150, SIDE);//function(x, y , damage, img, speed, life, side ="left")
 						enemies.push(e);
 
 						ENEMY_LAUNCHED++;
@@ -531,8 +564,14 @@ function decrease_life()
 		endGame(0);
 	}
 	else {
-		player_x = 50; //placement en X
-		player_y = SCREEN_HEIGHT - 150; //placement en Y
+		// player_x = 50; //placement en X
+		// player_y = SCREEN_HEIGHT - 150; //placement en Y
+		INVINCIBLE = 1;
+		sc.src = "images/scientist-"+SC_SIDE+"-inv.png";
+		setTimeout(function() {
+			INVINCIBLE = 0;
+			sc.src = "images/scientist-"+SC_SIDE+".png";
+		},1500);
 	}
 }
 function endGame(n){
@@ -568,6 +607,7 @@ function draw_menu() {
 	myContext.drawImage(f3, 300, SCREEN_HEIGHT - 40);
 	myContext.drawImage(f4, 360, SCREEN_HEIGHT - 40);
 	myContext.drawImage(h, 440, SCREEN_HEIGHT - 40);
+	myContext.drawImage(play_pause, 685, SCREEN_HEIGHT - 40);
 	myContext.drawImage(sound, 720, SCREEN_HEIGHT - 40);
 	myContext.drawImage(fx, 755, SCREEN_HEIGHT - 40);
 	//Textes menu
@@ -608,6 +648,10 @@ function check_win(){
 				END_WAVE = 0;
 				BOSS = 0;
 				WAVE += 1;
+				LIFE = 10;
+				AMMO2_LEFT = 5;
+				AMMO3_LEFT = 5;
+				AMMO4_LEFT = 5;
 			}, 3000);
 		}
 		else {
@@ -665,6 +709,26 @@ $(document).ready(function(){
 			else {
 				FX = 1;
 				fx.src = "images/fx.png";
+			}
+		}
+		//CHECK IF CLICKED ON PAUSE
+		if((x >= 685 && x <= 712) && (y <= SCREEN_HEIGHT - 10 && y >= SCREEN_HEIGHT - 42)){
+			if (END_WAVE == 0){
+				play_pause.src = "images/play.png";
+				MUSIC = 0;
+
+
+				setTimeout(function() {
+					END_WAVE = 1;},100);
+				setTimeout(function() {
+					myContext.drawImage(pause, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);},200);
+
+			}
+
+			else {
+				END_WAVE = 0;
+				MUSIC = 1;
+				play_pause.src = "images/pause.png";
 			}
 		}
 	}

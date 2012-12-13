@@ -13,12 +13,14 @@
 
 	<body>
 
-		<div id="wrapper" >
-			<img class="menu" src="images/menu.png"></img>
-			<a class="play" href="game.html"></a>
-			<a class="howtoplay" href="howtoplay.html"></a>
-			<a class="credits" href="credits.html"></a>
-
+		<div id="wrapper_menu">
+			
+			<table>
+				<tr><td><a href="game.html"><img src="images/play-menu.png" onMouseOver="this.src='images/play_hover.png'" onMouseOut="this.src='images/play-menu.png'"/></a></tr></td>
+				<tr><td><a href="howtoplay.html"><img src="images/howtp.png" onMouseOver="this.src='images/howtp_hover.png'" onMouseOut="this.src='images/howtp.png'"/></a></tr></td>
+				<tr><td><a href="credits.html"><img src="images/credits.png" onMouseOver="this.src='images/credits_hover.png'" onMouseOut="this.src='images/credits.png'"/></a></tr></td>
+			</table>
+			<img style="position: absolute; left: 55%; top: 70%;" src="images/gamjam.png"/>
 		</div>
 	</body>
 </html>
