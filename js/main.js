@@ -17,6 +17,8 @@ var ENEMY_LAUNCHED = 0;
 var AMMO2_LEFT = 9;
 var AMMO3_LEFT = 6;
 var AMMO4_LEFT = 4;
+var END_WAVE = 0;
+var BOSS = 0;
 var LIFE = 3;
 var WAVE = 1;
 var MUSIC = 1;
@@ -33,6 +35,7 @@ var fx = new Image();
 var bullets = new Array();
 var enemies = new Array();
 var explosions = new Array();
+var images = new Array();
 var score;
 var myContext;
 var player_x;
@@ -49,6 +52,24 @@ f4.src = ("images/fiole4.png");
 h.src = ("images/heart.png");
 sound.src = ("images/music.png");
 fx.src = ("images/fx.png");
+l1 = new Image();
+l2 = new Image();
+l3 = new Image();
+l4 = new Image();
+l5 = new Image();
+lgo = new Image();
+l1.src = "images/level1.png";
+l2.src = "images/level2.png";
+l3.src = "images/level3.png";
+l4.src = "images/level4.png";
+l5.src = "images/level5.png";
+lgo.src = "images/game-over.png";
+images.push(l1);
+images.push(l2);
+images.push(l3);
+images.push(l4);
+images.push(l5);
+images.push(lgo);
 // SOUNDS
 myAudio = new Audio('sounds/main.ogg');
 myAudio.addEventListener('ended', function() {
@@ -93,7 +114,7 @@ document.onkeyup = onKeyUp;
 
 function onKeyDown(e) {
 	if(!e){ var e = window.event; }
-	console.log("key" + e.keyCode);
+	//console.log("key" + e.keyCode);
 	switch(e.keyCode) {
         // left
         case 37: moveLeft = true; moveRight = false;
@@ -101,7 +122,8 @@ function onKeyDown(e) {
         // up
         case 38: moveUp = true; moveDown = false;
         propulse();
-        soundPropulse();
+        if (FX == 1)
+        	soundPropulse();
         break;
         // right
         case 39: moveRight = true; moveLeft = false;
@@ -126,7 +148,7 @@ function onKeyDown(e) {
 
 function onKeyUp(e) {
 	if(!e){ var e = window.event; }
-	console.log(e.keyCode);
+	//console.log(e.keyCode);
 	switch(e.keyCode) {
         // left
         case 37: moveLeft = false;
@@ -148,45 +170,77 @@ function onKeyUp(e) {
         //launch_ennemy();
     }
 }
-function launch_wave() {
-	var nb;
-	var time;
-	var i = 0;
-	switch (WAVE) {
-		case 1:
-		nb = 10;
-		break;
-	}
-	
-}
+
 function launch_ennemy(){
 	var x;
 	var side;
 	var randomnumber;
 	var time;
 	var speed;
-	//console.log("launch");
-	if (ENEMY_LAUNCHED <= WAVE * 10){
+	var e;
+	var NB;
+	var SIDE;
+	var MAX_DAMAGE;
+
+	switch (WAVE){
+		case 1:
+		NB = 11;
+		SIDE = "left";
+		MAX_DAMAGE = 2.5;
+		break;
+
+		case 2:
+		NB = 14;
+		SIDE = "right";
+		MAX_DAMAGE = 5;
+		break;
+
+		case 3:
+		NB = 16;
+		SIDE = "both";
+		MAX_DAMAGE = 5;
+		break;
+
+		case 4:
+		NB = 18;
+		SIDE = "both";
+		MAX_DAMAGE = 7;
+		break;
+
+		case 5:
+		NB = 20;
+		SIDE = "both";
+		MAX_DAMAGE = 7;
+		break;
+	}
+	//console.log("launch -> "+ENEMY_LAUNCHED + " // " + enemies.length);
+	if (ENEMY_LAUNCHED < NB){
 		randomnumber=Math.floor(Math.random()*300);
 
+		if (SIDE == "both"){
 		if (randomnumber % 2 == 0)
 			side = "left";
 		else
 			side = "right";
+	}
+	else
+		side = SIDE;
 		f = new Image();
 		f.src = "images/snake1.png";
-		var e = new Enemy();
+		e = new Enemy();
 	//function(x, y , damage, img, speed, life, side)
 	if (side == "left")
 		x = 0;
 	else x = SCREEN_WIDTH;
 	speed = Math.floor(Math.random()*10)+1;
-	e.setEnemy(x, randomnumber, 30, f, speed, 50, side);
+	life = Math.floor(Math.random()*MAX_DAMAGE * 10) + 10;
+	e.setEnemy(x, randomnumber, 30, f, speed, life, side);
 	enemies.push(e);
 
 	//console.log("eX "+ e.getX());
 	myContext.drawImage(f, e.getX(), e.getY());
 	ENEMY_LAUNCHED++;
+	console.log(ENEMY_LAUNCHED);
 }
 }
 function propulse(){
@@ -284,15 +338,15 @@ function fire(){
 
 function updateBullets() {
 	var i;
-	
+
 	var limit = bullets.length;
 	for (i=0; i < limit; i++)
 	{
 		//console.log(bullets[i].getActive());
 		if (bullets[i].getActive()){
-		bullets[i].setX(bullets[i].getX() + BULLET_SPEED);
-		myContext.drawImage(bullets[i].getImg(), bullets[i].getX() - 30, bullets[i].getY());
-	}
+			bullets[i].setX(bullets[i].getX() + BULLET_SPEED);
+			myContext.drawImage(bullets[i].getImg(), bullets[i].getX() - 30, bullets[i].getY());
+		}
 		if (bullets[i].getX() > SCREEN_WIDTH - 20){
 			//stage.removeChild(bullets[i]);
 			bullets[i].setActive(false);
@@ -316,9 +370,10 @@ function updateEnemies() {
 	var i;
 	//console.log(bullets[0].getX);
 	var limit = enemies.length;
+	//console.log("limits :" +enemies.length);
 	for (i=0; i < limit; i++)
 	{
-		//console.log("sidqsde : "+enemies[0].getLife());
+		//console.log("sidqsde : "+enemies[0].getY() + enemies[0].getSide());
 		if (enemies[i].getSide() == "left" && enemies[i].getLife() > 0) {
 			enemies[i].setX(enemies[i].getX() - enemies[i].getSpeed());
 			myContext.drawImage(enemies[i].getImg(), enemies[i].getX(), enemies[i].getY());
@@ -347,21 +402,21 @@ function checkExplosions()
 		if (time - explosions[i].getTime() < 300)
 			myContext.drawImage(explosions[i].getImg(), explosions[i].getX(), explosions[i].getY());
 		else
-		explosions.splice(i, 1);
+			explosions.splice(i, 1);
 	}
 
 }
 
 function checkCollide(){
 	var i;
-	
+
 	var limit = enemies.length;
 	var b_limit = bullets.length;
 
 	//COLLISION PLAYER / ENEMY
 	for (i=0; i < limit; i++)
 	{
-		
+
 		if (Math.abs(player_x - enemies[i].getX()) < 40 && Math.abs(player_y - enemies[i].getY()) < 40){
 			myDeath = new Audio("sounds/explosion.ogg");
 			myDeath.play();
@@ -375,22 +430,40 @@ function checkCollide(){
 	for (i=0; i < limit; i++) //enemey
 	{
 		for (j = 0; j <b_limit; j++) {
-			
+
 			if (Math.abs(bullets[j].getX() - enemies[i].getX()) < 40 && Math.abs(bullets[j].getY() - enemies[i].getY()) < 40 && bullets[j].getActive()){
 				bullets[j].setActive(false);
 				y = bullets[j].getY() - enemies[i].getY();
-			x =bullets[j].getX() - enemies[i].getX()
-			console.log("i : "+i + " j : "+j+" --> "+x+ "// "+ y+"\n");
-				myDeath = new Audio("sounds/explosion.ogg");
-				myDeath.play();
+				x =bullets[j].getX() - enemies[i].getX()
+				//console.log("i : "+i + " j : "+j+" --> "+x+ "// "+ y+"\n");
+				if (FX == 1){
+					myDeath = new Audio("sounds/explosion.ogg");
+					myDeath.play();
+				}
 				t = new Image();
-				console.log("damB : "+bullets[j].getDamage() + " // Life"+ + enemies[i].getLife())
+				//console.log("damB : "+bullets[j].getDamage() + " // Life"+ + enemies[i].getLife())
 				if (enemies[i].getLife() - bullets[j].getDamage() < 1){
 					console.log("killed !");
 					enemies.splice(i, 1);
 					t.src = "images/explosion.png";
 					score += 100;
-	
+					if (ENEMY_LAUNCHED == (WAVE * 2 + 10) && enemies.length == 0) {
+						BOSS = 1;
+						console.log("time for THE boss");
+						b = new Audio("sounds/suspense.ogg");
+						b.play();
+						t = new Image();
+						t.src = "images/boss"+WAVE+".png";
+
+						randomnumber=Math.floor(Math.random()*300);
+						e = new Enemy();
+						e.setEnemy(500, randomnumber, 30, t, 5, 150, "left");
+						enemies.push(e);
+
+						ENEMY_LAUNCHED++;
+					}
+					if (BOSS == 1)
+						BOSS = 0;
 				}
 				else {
 					t.src = "images/explosion-small.png";
@@ -401,7 +474,7 @@ function checkCollide(){
 				ex.setExplosion(bullets[j].getX(), bullets[j].getY(), new Date().getTime(), t);
 				//myContext.drawImage(t, 100, 100);
 				explosions.push(ex);
-				console.log("splicing "+i);
+				//console.log("splicing "+i);
 				// if (enemies[i].getLife() - bullets[i].getDamage() < 1)
 				// 	enemies.splice(i, 1);
 			}
@@ -411,10 +484,10 @@ function checkCollide(){
 
 function decrease_life()
 {
-	console.log("decrease_life");
+	//console.log("decrease_life");
 	LIFE -= 1;
 	if (LIFE === 0){
-		alert("YOU LOST !!");
+		alert("YOU'VE LOST !!");
 		endGame();
 	}
 	else {
@@ -428,7 +501,6 @@ function endGame(){
 function clearScreen ()
 {
 	myContext.drawImage(bg, 0, 0);
-
 }
 function draw() {
 	myContext.drawImage(sc, player_x, player_y);
@@ -463,26 +535,49 @@ function clean_tabs(){
 		}
 		bullets = tmp;
 	}
-	// if (enemies.length > 10){
-	// 	for (i = 0; i < 11; i++){
-	// 		tmp2.push(enemies[i]);
-	// 	}
-	// 	enemies = tmp2;
-	// }
 	console.log("tabs cleaned");
 }
+
+function check_win(){
+
+	if (enemies.length == 0 && BOSS == 0 && ENEMY_LAUNCHED > 0){
+
+		END_WAVE = 1;
+		if (WAVE + 1 < 6){
+			setTimeout (function() {
+
+				l = images[WAVE];
+				console.log("using " +l.src);
+				myContext.drawImage(images[WAVE], SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);
+			}, 100);
+
+			ENEMY_LAUNCHED = 0;
+			setTimeout (function() {
+				END_WAVE = 0;
+				BOSS = 0;
+				WAVE += 1;
+			}, 2000);
+		}
+		else {
+		you_won();}
+	}
+}
+
+function  you_won () {
+	alert("YOU FUCKED THE SNAKES");
+}
+
 function tick() {
-
-
-	clearScreen();
-	checkMovement();
-	updateScientist();
-	updateEnemies();
-	checkExplosions();
-	updateBullets();
-	checkCollide();
-	draw();
-	draw_menu();
+	if (END_WAVE == 0){
+		clearScreen();
+		checkMovement();
+		updateScientist();
+		updateEnemies();
+		checkExplosions();
+		updateBullets();
+		checkCollide();
+		draw();
+		draw_menu();
 	//console.log(FRAME_TIMEOUT);
 	if (FRAME_TIMEOUT % LAUNCH_RATE == 0){
 		launch_ennemy ();
@@ -490,6 +585,8 @@ function tick() {
 	}
 
 	FRAME_TIMEOUT++;
+}
+check_win();
 }
 
 //JQUERY
