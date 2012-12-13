@@ -1,6 +1,6 @@
 body {
 
-	background-color:#001132;
+	background-color: black;
 }
 
 #canvas {
@@ -22,12 +22,35 @@ body {
 	border:5px ridge #cc8811;
 }
 
-#menu {
+.menu{
 
-	position:absolute;
-	top:450;
-	left:100;
-	color:red;
+	margin-left: 200px;
+	margin-top: -5px;
+}
+
+.play{
+	position: absolute; 
+	top: 20.5%;
+	left: 30%; 
+	width: 310px; 
+	height: 50px;
+}
+
+.howtoplay{
+	position: absolute; 
+	top: 35%;
+	left: 30%; 
+	width: 310px; 
+	height: 50px;
+}
+
+.credits{
+
+	position: absolute; 
+	top: 49.5%;
+	left: 30%; 
+	width: 230px; 
+	height: 50px;
 }
 	
 h1 {
@@ -63,4 +86,12 @@ p {
 .icon {
 
 	width: 30px;
+}
+
+.credits {
+	
+	padding-left: 40px;
+	padding-right: 40px;
+	font-family: Terminal;
+	color: grey;
 }

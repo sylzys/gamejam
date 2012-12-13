@@ -46,10 +46,14 @@ function Enemy() {
 		this.side = _sd;
 	}
 	this.changeSide = function() {
-		if(this.side == "left")
+		if(this.side == "left"){
 			this.side = "right";
-		else 
+			this.img.src = this.img.src.replace("left", "right");
+		}
+		else {
 			this.side = "left";
+			this.img.src = this.img.src.replace("right", "left");
+		}
 	}
 	this.setEnemy = function(x, y , damage, img, speed, life, side ="left") {
 		this.x = x;

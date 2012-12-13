@@ -19,7 +19,7 @@ var AMMO3_LEFT = 6;
 var AMMO4_LEFT = 4;
 var END_WAVE = 0;
 var BOSS = 0;
-var LIFE = 3;
+var LIFE = 10;
 var WAVE = 1;
 var MUSIC = 1;
 var FX = 1;
@@ -43,8 +43,22 @@ var player_y;
 var fxUpUrl = "sounds/flame.ogg";
 
 function init() {
+	l1 = new Image();
+	l1.src = "images/level1.png";
+	canvas = document.getElementById("canvas");
+	myContext = (canvas.getContext("2d"));
+	setTimeout (function() {
+		//console.log("using " +l.src);
+		myContext.drawImage(l1, SCREEN_WIDTH / 4, SCREEN_HEIGHT / 4);
+	}, 100);
+	setTimeout (function() {
+		start();
+	}, 3000);
 
+}
+function start() {
 //INIT FIOLES
+
 f1.src = ("images/fiole1.png");
 f2.src = ("images/fiole2.png");
 f3.src = ("images/fiole3.png");
@@ -78,11 +92,10 @@ myAudio.addEventListener('ended', function() {
 }, false);
 //myAudio.play();
 
-canvas = document.getElementById("canvas");
-myContext = (canvas.getContext("2d"));
+
 
 //TIMER
-
+END_WAVE = 0;
 var timer = self.setInterval("tick()", 1000/30);
 
 //clean bullet tab
@@ -184,56 +197,64 @@ function launch_ennemy(){
 
 	switch (WAVE){
 		case 1:
-		NB = 11;
+		NB = 12;
 		SIDE = "left";
-		MAX_DAMAGE = 2.5;
+		MAX_DAMAGE = 3;
+		MIN_DAMAGE = 1;
 		break;
 
 		case 2:
 		NB = 14;
 		SIDE = "right";
+		MIN_DAMAGE = 2;
 		MAX_DAMAGE = 5;
 		break;
 
 		case 3:
 		NB = 16;
 		SIDE = "both";
+		MIN_DAMAGE = 2;
 		MAX_DAMAGE = 5;
 		break;
 
 		case 4:
 		NB = 18;
 		SIDE = "both";
+		MIN_DAMAGE = 3;
 		MAX_DAMAGE = 7;
 		break;
 
 		case 5:
 		NB = 20;
 		SIDE = "both";
+		MIN_DAMAGE = 4;
 		MAX_DAMAGE = 7;
 		break;
 	}
 	//console.log("launch -> "+ENEMY_LAUNCHED + " // " + enemies.length);
 	if (ENEMY_LAUNCHED < NB){
+		speed = Math.floor(Math.random()*10)+1;
+	life = Math.round((Math.random()*(MAX_DAMAGE * 10-MIN_DAMAGE * 10)+MIN_DAMAGE * 10)/10)*10;//Math.floor(Math.random()*MAX_DAMAGE * 10) + MIN_DAMAGE * 10;
+		//console.log("random is "+life);
 		randomnumber=Math.floor(Math.random()*300);
 
 		if (SIDE == "both"){
-		if (randomnumber % 2 == 0)
-			side = "left";
+			if (randomnumber % 2 == 0)
+				side = "left";
+			else
+				side = "right";
+		}
 		else
-			side = "right";
-	}
-	else
-		side = SIDE;
+			side = SIDE;
 		f = new Image();
-		f.src = "images/snake1.png";
+		f.src = "images/snake"+(life / 10)+"-"+SIDE+".png";
+		//console.log ("spawning "+f.src);
 		e = new Enemy();
 	//function(x, y , damage, img, speed, life, side)
 	if (side == "left")
 		x = 0;
 	else x = SCREEN_WIDTH;
-	speed = Math.floor(Math.random()*10)+1;
-	life = Math.floor(Math.random()*MAX_DAMAGE * 10) + 10;
+	
 	e.setEnemy(x, randomnumber, 30, f, speed, life, side);
 	enemies.push(e);
 
@@ -447,13 +468,16 @@ function checkCollide(){
 					enemies.splice(i, 1);
 					t.src = "images/explosion.png";
 					score += 100;
+					console.log("LAUNCHED "+ENEMY_LAUNCHED + " on "+(WAVE * 2 + 10));
 					if (ENEMY_LAUNCHED == (WAVE * 2 + 10) && enemies.length == 0) {
 						BOSS = 1;
 						console.log("time for THE boss");
 						b = new Audio("sounds/suspense.ogg");
 						b.play();
 						t = new Image();
-						t.src = "images/boss"+WAVE+".png";
+						s = Math.floor(Math.random()*2)+1;
+						//net(s == 1) ? 
+						t.src = "images/boss"+WAVE+"-"+SIDE+".png";
 
 						randomnumber=Math.floor(Math.random()*300);
 						e = new Enemy();
@@ -487,16 +511,28 @@ function decrease_life()
 	//console.log("decrease_life");
 	LIFE -= 1;
 	if (LIFE === 0){
-		alert("YOU'VE LOST !!");
-		endGame();
+		// alert("YOU'VE LOST !!");
+		endGame(0);
 	}
 	else {
 		player_x = 50; //placement en X
 		player_y = SCREEN_HEIGHT - 150; //placement en Y
 	}
 }
-function endGame(){
+function endGame(n){
+	if (n == 0){ //YOU'VE LOST
+		END_WAVE = 1;
+	setTimeout (function() {
 
+		myContext.drawImage(images[5], 0, 0);
+	}, 100);
+
+	ENEMY_LAUNCHED = 0;
+	setTimeout (function() {
+		clearScreen();
+		init();
+	}, 3000);
+}
 }
 function clearScreen ()
 {
@@ -535,12 +571,12 @@ function clean_tabs(){
 		}
 		bullets = tmp;
 	}
-	console.log("tabs cleaned");
+	//console.log("tabs cleaned");
 }
 
 function check_win(){
 
-	if (enemies.length == 0 && BOSS == 0 && ENEMY_LAUNCHED > 0){
+	if (enemies.length == 0 && BOSS == 0 && ENEMY_LAUNCHED >= WAVE * 2 + 10){
 
 		END_WAVE = 1;
 		if (WAVE + 1 < 6){
@@ -556,28 +592,25 @@ function check_win(){
 				END_WAVE = 0;
 				BOSS = 0;
 				WAVE += 1;
-			}, 2000);
+			}, 3000);
 		}
 		else {
-		you_won();}
+			endGame(1);}
+		}
 	}
-}
 
-function  you_won () {
-	alert("YOU FUCKED THE SNAKES");
-}
 
-function tick() {
-	if (END_WAVE == 0){
-		clearScreen();
-		checkMovement();
-		updateScientist();
-		updateEnemies();
-		checkExplosions();
-		updateBullets();
-		checkCollide();
-		draw();
-		draw_menu();
+	function tick() {
+		if (END_WAVE == 0){
+			clearScreen();
+			checkMovement();
+			updateScientist();
+			updateEnemies();
+			checkExplosions();
+			updateBullets();
+			checkCollide();
+			draw();
+			draw_menu();
 	//console.log(FRAME_TIMEOUT);
 	if (FRAME_TIMEOUT % LAUNCH_RATE == 0){
 		launch_ennemy ();
@@ -592,7 +625,7 @@ check_win();
 //JQUERY
 
 $(document).ready(function(){
-	setTimeout(launch_wave, 3000);
+	//setTimeout(launch_wave, 3000);
 	function checkCoordinates(x, y){
 		//CHECK IF CLICKED ON SOUND
 		if((x >= 720 && x <= 752) && (y <= SCREEN_HEIGHT - 10 && y >= SCREEN_HEIGHT - 42)){
