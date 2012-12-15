@@ -1,26 +1,24 @@
-﻿<!doctype html>
+<!doctype html>
 
 <html>
 
-	<head>
-	
-		<meta charset="utf-8">
-		<title>Crazy Scientists</title>
-		<link rel="stylesheet" type="text/css" href="css/style.css" />
-		<link rel="icon" href="images/scientist2.png"/>
-		<link rel="shortcut icon" href="images/scientist2.png"/>
-	</head>
+    <head>
+        <meta charset="utf-8">
+        <title>Crazy Scientists</title>
+         <link rel="stylesheet" type="text/css" href="css/style_accueil.css" />
+         <script type="text/javascript" src=""js/jquery.js"> </script>
+         <script type="text/javascript" src="http://jqueryrotate.googlecode.com/svn/trunk/jQueryRotate.js"></script>
+         <script type="text/javascript" src="js/main.js"> </script>
+     </head>
 
-	<body>
+    <body>
 
-		<div id="wrapper_menu">
-			
-			<table>
-				<tr><td><a href="game.html"><img src="images/play-menu.png" onMouseOver="this.src='images/play_hover.png'" onMouseOut="this.src='images/play-menu.png'"/></a></tr></td>
-				<tr><td><a href="howtoplay.html"><img src="images/howtp.png" onMouseOver="this.src='images/howtp_hover.png'" onMouseOut="this.src='images/howtp.png'"/></a></tr></td>
-				<tr><td><a href="credits.html"><img src="images/credits.png" onMouseOver="this.src='images/credits_hover.png'" onMouseOut="this.src='images/credits.png'"/></a></tr></td>
-			</table>
-			<img style="position: absolute; left: 55%; top: 70%;" src="images/gamjam.png"/>
-		</div>
-	</body>
+        <ul class="menu">
+            <li class="play"><a href="game.html"><div id="btn_play"></div></a></li>
+            <li class="htp"><a href="howtoplay.html"><div id="btn_htp"></div></a></li>
+            <li class="credits"><a href="credits.html"><div id="btn_credits"></div></a></li>
+           <img id="pancarte" src="images/gamjam.png" style="margin-left:200px;margin-top:30px"/>
+       </ul>
+       
+    </body>
 </html>

@@ -1,0 +1,157 @@
+body{
+    background-color: black;/*#535353;*/
+    font-family: 'terminalregular';
+    color:white;
+}
+@font-face {
+    font-family: 'terminalregular';
+    src: url('../fonts/terminal-webfont.eot');
+    src: url('../fonts/terminal-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/terminal-webfont.woff') format('woff'),
+         url('../fonts/terminal-webfont.ttf') format('truetype'),
+         url('../fonts/terminal-webfont.svg#terminalregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+.menu { 
+    list-style:none; 
+
+    background-image: url('..images//bg_pancarte.png');
+    background-repeat: no-repeat;
+    width:410px;
+    height:480px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 70px;
+}
+.menu-htp { 
+    list-style:none; 
+    background-image: url('..images//bg_pancarte-htp.png');
+    background-repeat: no-repeat;
+    width:500px;
+    height:500px;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 70px;
+    padding-top:50px;
+    color:white;
+
+    /*-moz-hyphens:auto;
+    -ms-hyphens:auto;
+    -webkit-hyphens:auto;
+    hyphens:auto;*/
+    word-wrap:break-word;
+}
+
+#wrapper {
+        border : 2 px solid red;
+        margin: 0 auto;
+        width:500px;
+}
+.menu-htp li {
+    margin-top:5px;
+}
+.play{
+    background-image: url('..images//btn_play.png');
+    background-repeat: no-repeat;
+    width:327px;
+    height:160px;
+    margin-top:20px;
+}
+.htp{
+    background-image: url('..images//btn.png');
+    background-repeat: no-repeat;
+    width:327px;
+    height:70px;
+    margin-top:3px;
+}
+.credits{
+    background-image: url('..images//btn.png');
+    background-repeat: no-repeat;
+    width:327px;
+    height:70px;
+    margin-top:15px;
+}
+.pancarte{
+ height: 107px;
+ width: 131px;
+ position: relative;
+ top: 17px;
+ left: 201px;
+}
+#btn_play{
+    background-image: url('..images//play-big.png');
+    background-repeat: no-repeat;
+    height:59px;
+    width: 175px;
+    position: relative;
+    top: 81px;
+    left: 100px;
+}
+#btn_htp{
+    background-image: url('..images//htp.png');
+    background-repeat: no-repeat;
+    height: 59px;
+    width: 307px;
+    position: relative;
+    top: 5px;
+    left: 16px;
+}
+#btn_credits{
+    background-image: url('..images//credits.png');
+    background-repeat: no-repeat;
+    height: 59px;
+    width: 175px;
+    position: relative;
+    top: 5px;
+    left: 80px;
+}
+#btn_play:hover{
+    background-image: url('..images//play_hover.png');
+    background-repeat: no-repeat;
+    height: 124px;
+    width: 252px;
+    position: relative;
+    top: 44px;
+    left: 58px;
+}
+#btn_htp:hover{
+    background-image: url('..images//htp_hover.png');
+    background-repeat: no-repeat;
+    height: 136px;
+    width: 379px;
+    position: relative;
+    top: -39px;
+    left: -29px;
+}
+#btn_credits:hover{
+    background-image: url('..images//credits_hover.png');
+    background-repeat: no-repeat;
+    height: 140px;
+    width: 259px;
+    position: relative;
+    top: -39px;
+    left: 32px;
+}
+#pancarte{
+    background-image: url('..images//gamjam.png');
+    background-repeat: no-repeat;
+    height: 107px;
+}
+#marqueecontainer{
+    position: relative;
+    width: 500px; /*marquee width */
+    height: 250px; /*marquee height */
+    margin: 0 auto;
+    margin-top:50px;
+    overflow: hidden;
+    border: 3px solid orange;
+/*    padding: 2px;*/
+    padding-left: 20px;
+    padding-right: 20px;
+    color:orange;
+    word-wrap:break-word;
+
+}
+

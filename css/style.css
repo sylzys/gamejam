@@ -56,7 +56,7 @@ p {
 	width: 30px;
 }
 #cadre{
-	background-image: url('../images/cadre.png');
+	background-image: url('..images/cadre.png');
 	background-repeat: no-repeat;
 	height:800px;
 	width:1200px;
