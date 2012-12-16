@@ -21,7 +21,7 @@ var END_WAVE = 0;
 var BONUS = 0;
 var BOSS = 0;
 var LIFE = 10;
-var WAVE = 4;
+var WAVE = 1;
 var MUSIC = 1;
 var UP = 0;
 var FX = 1;
@@ -59,6 +59,13 @@ var player_x;
 var player_y;
 var fxUpUrl = "sounds/flame.ogg";
 
+////////////STATS
+var BULLET_SHOT = 0;
+var TARGET_SHOT = 0;
+var LIFE_GOT = 0;
+var SPECIAL_BONUS = 0;
+
+///////
 // ****************************************************************************************
 var backgrounddx = 2;  // Amount to move background image
 var backgroundx = 0;  // x coord to slice background image
@@ -257,7 +264,7 @@ function onKeyDown(e) {
         break;
         case 51: CURRENT_WEAPON = 3;
         break;
-        case 52: CURRENT_WEAPON = 4;
+        case 69: CURRENT_WEAPON = 4;
         break;
 
     }
@@ -357,7 +364,7 @@ function launch_ennemy(){
 		speed = Math.floor(Math.random()*10)+1;
 	life = Math.round((Math.random()*(MAX_DAMAGE * 10-MIN_DAMAGE * 10)+MIN_DAMAGE * 10)/10)*10;//Math.floor(Math.random()*MAX_DAMAGE * 10) + MIN_DAMAGE * 10;
 		//console.log("random is "+life);
-		randomnumber=Math.floor(Math.random()*300) + 20;
+		randomnumber=Math.floor(Math.random()*280)+ 20;
 
 		if (SIDE == "both"){
 			if (randomnumber % 2 == 0)
@@ -411,6 +418,7 @@ function bonus(){
 		i = f4;
 		break;
 		case 5:
+		LIFE_GOT++;
 		i = h;
 		break;
 		case 6:
@@ -418,6 +426,7 @@ function bonus(){
 		break;
 		case 7:
 		i = BAF;
+		SPECIAL_BONUS++;
 		break;
 	}
 	b.setBonus(x, 25, i, type); //function(x, y, damage, img, type, active=true)
@@ -530,6 +539,7 @@ function fire(){
 
 	//console.log(b.getX());
 	myContext.drawImage(f, b.getX(),  b.getY());
+	BULLET_SHOT++;
 }
 
 function updateBullets() {
@@ -670,6 +680,7 @@ function checkCollide(){
 
 			if (Math.abs(bullets[j].getX() - enemies[i].getX()) < 40 && Math.abs(bullets[j].getY() - enemies[i].getY()) < 40 && bullets[j].getActive()){
 				bullets[j].setActive(false);
+				TARGET_SHOT++;
 				y = bullets[j].getY() - enemies[i].getY();
 				x =bullets[j].getX() - enemies[i].getX()
 				//console.log("i : "+i + " j : "+j+" --> "+x+ "// "+ y+"\n");
@@ -764,8 +775,8 @@ function checkCollide(){
 function go_bonus()
 {
 	BONUS = 1;
-	INVINCIBLE = 1;
 	FX = 0;
+	INVINCIBLE = 1;
 	myAudio.pause();
 	myBonus = new Audio ("sounds/bonus.ogg");
 	myBonus.play();
@@ -799,21 +810,35 @@ function decrease_life()
 function endGame(n){
 	if (n == 0){ //YOU'VE LOST
 		END_WAVE = 1;
+	var prec = TARGET_SHOT * 100 / BULLET_SHOT;
 	setTimeout (function() {
-
+		var str = "tirs: "+BULLET_SHOT+"\nCibles touchées: "+TARGET_SHOT+"\nPrécision: "+Math.round(prec)+"%";
+		var str2 = "Vies récupérées: "+LIFE_GOT + "\n Special Bonus: "+SPECIAL_BONUS;
 		myContext.drawImage(images[5], 0, 0);
+		myContext.font = "bold 16px sans-serif";
+		myContext.fillText(str, 240, 300);
+		myContext.fillText(str2, 260, 330);
 	}, 100);
 
 	ENEMY_LAUNCHED = 0;
 	setTimeout (function() {
 		clearScreen();
 		init();
-	}, 3000);
+	}, 4000);
 }
 else
 {
 		//alert ("FUCK THE SNAKES");
 		END_WAVE = 1;
+		var stats = new Array();
+		stats.push(BULLET_SHOT);
+		stats.push(TARGET_SHOT);
+		stats.push(TARGET_SHOT * 100 / BULLET_SHOT);
+		stats.push(LIFE_GOT);
+		stats.push(SPECIAL_BONUS);
+		stats.push(score);
+		localStorage['stats'] = stats;
+		console.log(localStorage['stats']);
 		window.location.replace("win.html");
 	}
 }
@@ -832,7 +857,7 @@ function draw_menu() {
 	myContext.fillStyle = "orange";
 	myContext.fillText("Score : " + score, 10, SCREEN_HEIGHT - 10);
 
-	//images/ menu
+	//Images menu
 	myContext.drawImage(f1, 150, SCREEN_HEIGHT - 40);
 	myContext.drawImage(f2, 220, SCREEN_HEIGHT - 40);
 	myContext.drawImage(f3, 300, SCREEN_HEIGHT - 40);
@@ -863,7 +888,7 @@ function clean_tabs(){
 
 function check_win(){
 
-	if (enemies.length == 0 && BOSS == 0 && ENEMY_LAUNCHED >= WAVE * 2 + 10){
+	if (enemies.length == 0 && BOSS == 0 && ENEMY_LAUNCHED >= WAVE * 2 + 11){
 
 		END_WAVE = 1;
 		if (WAVE + 1 < 3){
@@ -952,10 +977,7 @@ function drawRectangle(_cntx, x, y, w, h)
 //JQUERY
 
 $(document).ready(function(){
-// if (localStorage)
-// alert("YEs");
-// else 
-// alert("no");
+
 	paraWidth = $("#canvas").width();
 	paraHeight = 453;
 	var angle = 0;
@@ -971,7 +993,7 @@ $(document).ready(function(){
 		if (angle == -36){
 			retour = 0;
 		}
-		//$("#pancarte").rotate(angle);
+		$("#pancarte").rotate(angle);
 	},70);
 	
 	setTimeout (launch_bonus, 10000);

@@ -1,5 +1,15 @@
-body {
+@font-face {
+    font-family: 'terminalregular';
+    src: url('../fonts/terminal-webfont.eot');
+    src: url('../fonts/terminal-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/terminal-webfont.woff') format('woff'),
+         url('../fonts/terminal-webfont.ttf') format('truetype'),
+         url('../fonts/terminal-webfont.svg#terminalregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
 
+}body {
+	font-family: 'terminalregular';
 	background-color:#000000;
 }
 
@@ -56,7 +66,7 @@ p {
 	width: 30px;
 }
 #cadre{
-	background-image: url('..images/cadre.png');
+	background-image: url('../images/cadre.png');
 	background-repeat: no-repeat;
 	height:800px;
 	width:1200px;
@@ -68,7 +78,7 @@ p {
 	position:relative;
 	top: 430px;
 	left: 300px;
-	font-family: Terminal;
+	margin-left:50px;
 }
 #win{
 	position: relative;

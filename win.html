@@ -9,13 +9,23 @@
 </head>
 <body >
 <div id="cadre">
-	<div id="win"><img src="images/anim.gif"/></div>
-	<div id="stats"></div>
+	<div id="win" style="margin-top:-40px;"><img src="images/anim.gif"/></div>
+	<div id="stats" style="color:orange;"></div>
 </div>
+
 <script type="text/javascript"> 
+$(document).ready(function(){
+//	alert($("stats").html);
 var a = get_infos(); 
 var txt = document.getElementById("stats");
-//txt.appendChild(document.createTextNode(a));
+var stats = localStorage['stats'];
+var dtl_stats = stats.split(',');
+// alert(stats);
+var str = "&nbsp;&nbsp;N'OUBLIEZ PAS DE VOTER POUR NOUS !! ;-)<br /><br /><fieldset style='width:450px; padding:5px;border-color:orange';><legend>Stats</legend><table border='0'><tr><td>Tirs : "+dtl_stats[0]+"</td><td>Cibles atteintes : "+dtl_stats[1]+"</td></tr><tr><td colspan='2' style='text-align:center';>Précision : "+Math.round(dtl_stats[2])+"%</td></tr><tr><td>Vies récupérés : " +dtl_stats[3]+"</td><td>&nbsp;&nbsp;&nbsp;&nbsp;Special bonus : "+dtl_stats[4]+"</td></tr></table></fieldset>";
+//txt.appendChild(document.createTextNode(str));
+$("#stats").html(str);
+});
 </script>
 </body>
 </html>
+

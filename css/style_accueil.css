@@ -17,7 +17,7 @@ body{
 .menu { 
     list-style:none; 
 
-    background-image: url('..images//bg_pancarte.png');
+    background-image: url('../images/bg_pancarte.png');
     background-repeat: no-repeat;
     width:410px;
     height:480px;
@@ -27,7 +27,7 @@ body{
 }
 .menu-htp { 
     list-style:none; 
-    background-image: url('..images//bg_pancarte-htp.png');
+    background-image: url('../images/bg_pancarte-htp.png');
     background-repeat: no-repeat;
     width:500px;
     height:500px;
@@ -53,21 +53,21 @@ body{
     margin-top:5px;
 }
 .play{
-    background-image: url('..images//btn_play.png');
+    background-image: url('../images/btn_play.png');
     background-repeat: no-repeat;
     width:327px;
     height:160px;
     margin-top:20px;
 }
 .htp{
-    background-image: url('..images//btn.png');
+    background-image: url('../images/btn.png');
     background-repeat: no-repeat;
     width:327px;
     height:70px;
     margin-top:3px;
 }
 .credits{
-    background-image: url('..images//btn.png');
+    background-image: url('../images/btn.png');
     background-repeat: no-repeat;
     width:327px;
     height:70px;
@@ -81,7 +81,7 @@ body{
  left: 201px;
 }
 #btn_play{
-    background-image: url('..images//play-big.png');
+    background-image: url('../images/play-big.png');
     background-repeat: no-repeat;
     height:59px;
     width: 175px;
@@ -90,7 +90,7 @@ body{
     left: 100px;
 }
 #btn_htp{
-    background-image: url('..images//htp.png');
+    background-image: url('../images/htp.png');
     background-repeat: no-repeat;
     height: 59px;
     width: 307px;
@@ -99,7 +99,7 @@ body{
     left: 16px;
 }
 #btn_credits{
-    background-image: url('..images//credits.png');
+    background-image: url('../images/credits.png');
     background-repeat: no-repeat;
     height: 59px;
     width: 175px;
@@ -108,7 +108,7 @@ body{
     left: 80px;
 }
 #btn_play:hover{
-    background-image: url('..images//play_hover.png');
+    background-image: url('../images/play_hover.png');
     background-repeat: no-repeat;
     height: 124px;
     width: 252px;
@@ -117,7 +117,7 @@ body{
     left: 58px;
 }
 #btn_htp:hover{
-    background-image: url('..images//htp_hover.png');
+    background-image: url('../images/htp_hover.png');
     background-repeat: no-repeat;
     height: 136px;
     width: 379px;
@@ -126,7 +126,7 @@ body{
     left: -29px;
 }
 #btn_credits:hover{
-    background-image: url('..images//credits_hover.png');
+    background-image: url('../images/credits_hover.png');
     background-repeat: no-repeat;
     height: 140px;
     width: 259px;
@@ -135,7 +135,7 @@ body{
     left: 32px;
 }
 #pancarte{
-    background-image: url('..images//gamjam.png');
+    background-image: url('../images/gamjam.png');
     background-repeat: no-repeat;
     height: 107px;
 }
